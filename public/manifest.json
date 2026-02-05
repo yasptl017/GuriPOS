@@ -1,0 +1,19 @@
+{
+  "name": "Foodhat",
+  "short_name": "Foodhat",
+  "description": "Delicious Foods With Wonderful Eating",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/uploads/website-images/slider-foreground1-2023-06-04-10-32-12-2251.png",
+      "sizes": "462x462",
+      "type": "image/png"
+    }
+  ],
+  "serviceworker": {
+    "src": "/public/sw.js"
+  }
+}

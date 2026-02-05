@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Sitemap:https://punjabiparadise.com.au/sitemap.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-1.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-2.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-3.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-4.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-5.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-6.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-7.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-8.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-9.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-10.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-11.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-12.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-13.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-14.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-15.xml
+Sitemap:https://punjabiparadise.com.au/sitemap-16.xml
