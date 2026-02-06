@@ -399,9 +399,6 @@
                                                 @else
                                                 <h5 class="price">{{ $currency_icon }}{{ $menu_product->price }}</h5>
                                                 @endif
-                                                <div class="menu-item-cta">
-                                                    <span class="menu-item-cta-text">Tap to customize</span>
-                                                </div>
                                             </div>
                                             @if ($is_in_cart)
                                                 <span class="in-cart-badge">In Cart</span>
@@ -516,7 +513,7 @@
         background: #ffffff;
         border: 1px solid #eef0f2;
         border-radius: 14px;
-        padding: 16px 18px;
+        padding: 10px 12px;
         box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
         transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         cursor: pointer;
@@ -531,6 +528,18 @@
         transform: translateY(-4px);
         box-shadow: 0 12px 28px rgba(16, 24, 40, 0.12);
         border-color: #d9dee4;
+    }
+    .tf__menu_item_text .title {
+        margin-bottom: 6px;
+    }
+    .tf__menu_item_text hr {
+        margin: 6px 0;
+    }
+    .tf__menu_item_text label {
+        margin-bottom: 4px;
+    }
+    .tf__menu_item_text .price {
+        margin-bottom: 4px;
     }
     .menu-product-card.is-in-cart {
         border-color: #16a34a;
@@ -555,23 +564,6 @@
         border-radius: 999px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-    }
-    .menu-item-cta {
-        margin-top: auto;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-weight: 600;
-        color: #1f2937;
-        background: #f3f4f6;
-        border-radius: 999px;
-        padding: 6px 12px;
-        width: fit-content;
-    }
-    .menu-item-cta-text {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
     }
     .menu-search-bar {
         display: flex;
