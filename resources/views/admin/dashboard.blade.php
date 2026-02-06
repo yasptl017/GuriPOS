@@ -134,7 +134,7 @@
                                     <h4>{{__('admin.Total Earning')}}</h4>
                                 </div>
                                 <div class="card-body">
-                                    {{ $currency_icon }}{{ $total_earning }}
+                                    {{ $currency_icon }}{{ number_format($total_earning, 2, '.', '') }}
                                 </div>
                             </div>
                         </div>
