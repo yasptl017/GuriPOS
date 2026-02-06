@@ -51,6 +51,7 @@ use App\Http\Controllers\WEB\Admin\SliderController;
 use App\Http\Controllers\WEB\Admin\SubscriberController;
 use App\Http\Controllers\WEB\Admin\TermsAndConditionController;
 use App\Http\Controllers\WEB\Admin\TestimonialController;
+use App\Http\Controllers\WEB\Admin\WorkingHoursController;
 use App\Http\Controllers\WEB\User\AddressCotroller;
 use App\Http\Controllers\WEB\User\PaymentController;
 use App\Http\Controllers\WEB\User\PaypalController;
@@ -378,6 +379,9 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::get('reservation', [OrderController::class, 'reservation'])->name('reservation');
         Route::put('update-reservation-status/{id}', [OrderController::class, 'update_reservation_status'])->name('update-reservation-status');
         Route:: delete('delete-reservation/{id}', [OrderController::class, 'delete_reservation'])->name('delete-reservation');
+
+        Route::get('working-hours', [WorkingHoursController::class, 'index'])->name('working-hours');
+        Route::put('update-working-hours', [WorkingHoursController::class, 'update'])->name('update-working-hours');
 
         Route::resource('coupon', CouponController::class);
         Route::put('coupon-status/{id}', [CouponController::class, 'changeStatus'])->name('coupon-status');

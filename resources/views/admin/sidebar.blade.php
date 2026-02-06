@@ -42,7 +42,7 @@
 
           </li>
 
-          <li class="nav-item dropdown {{ Route::is('admin.product.*') || Route::is('admin.product-variant') || Route::is('admin.product-gallery') || Route::is('admin.product-review') || Route::is('admin.show-product-review') || Route::is('admin.product-category.*') || Route::is('admin.reservation') ? 'active' : '' }}">
+          <li class="nav-item dropdown {{ Route::is('admin.product.*') || Route::is('admin.product-variant') || Route::is('admin.product-gallery') || Route::is('admin.product-review') || Route::is('admin.show-product-review') || Route::is('admin.product-category.*') || Route::is('admin.reservation') || Route::is('admin.working-hours') ? 'active' : '' }}">
             <a href="#" class="nav-link has-dropdown"><i class="fas fa-th-large"></i><span>{{__('admin.Manage Restaurant')}}</span></a>
             <ul class="dropdown-menu">
 
@@ -54,6 +54,7 @@
 
                 <li class="{{ Route::is('admin.reservation') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.reservation') }}">{{__('admin.Reservations')}}</a></li>
 
+                <li class="{{ Route::is('admin.working-hours') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.working-hours') }}">{{__('admin.Working Hours')}}</a></li>
 
                 <li class="{{ Route::is('admin.product-review') || Route::is('admin.show-product-review') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.product-review') }}">{{__('admin.Product Reviews')}}</a></li>
 
