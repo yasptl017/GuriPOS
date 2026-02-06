@@ -74,25 +74,21 @@
                     data: $('#modal_add_to_cart_form').serialize(),
                     url: "{{ url('/add-to-cart') }}",
                     success: function (response) {
-                        console.log(response);
-                        let html_response = `<div>
-                            <div class="wsus__menu_cart_header">
-                                <h5 class="mini_cart_body_item">{{__('user.Total Item')}}(0)</h5>
-                                <span class="close_cart"><i class="fal fa-times"></i></span>
-                            </div>
-                            <ul class="mini_cart_list"></ul>
-                            <p class="subtotal">{{__('user.Sub Total')}} <span class="mini_sub_total">{{ $currency_icon }}0.00</span></p>
-                            <div class="btn_area">
-                                <a href="{{ route('cart') }}" class="common_btn">{{__('user.view cart')}}</a>
-                                <a href="{{ route('checkout') }}" class="common_btn">{{__('user.checkout')}}</a>
-                            </div>
-                        </div>`;
-                        $('#header_cart_body').html(html_response);
-                        toastr.success(response.message);
-                       location.reload();
+                        toastr.success("{{__('user.Item added successfully')}}");
+                        let currentQty = parseInt($(".cart_total_qty").first().html() || 0);
+                        $(".cart_total_qty").html(currentQty + 1);
+                        const productId = $("input[name='product_id']").val();
+                        if (window.markProductInCart && productId) {
+                            window.markProductInCart(productId);
+                        }
+                        $("#cartModal").modal('hide');
                     },
                     error: function(xhs, status, error){
-                        console.log(xhs.responseText);
+                        if (xhs.status == 403 && xhs.responseJSON && xhs.responseJSON.message) {
+                            toastr.error(xhs.responseJSON.message);
+                            return;
+                        }
+                        toastr.error("{{__('user.Server error occured')}}");
                     }
                 })
             } else {

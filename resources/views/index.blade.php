@@ -351,11 +351,24 @@
     ==============================-->
 <section class="tf__menu mt_25 xs_mt_25 @if($showClosureNotice) menu-disabled @endif">
     <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="menu-search-bar">
+                    <div class="menu-search-input">
+                        <i class="fas fa-search"></i>
+                        <input type="search" id="menuSearchInput" placeholder="Search menu items..." autocomplete="off">
+                        <button type="button" id="menuSearchClear" aria-label="Clear search">Clear</button>
+                    </div>
+                    <div id="menuSearchSummary" class="menu-search-summary"></div>
+                    <div id="menuSearchEmpty" class="menu-search-empty d-none">No matching items found.</div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-12">
                 <div class="accordion" id="menuAccordion">
                     @foreach ($menu_section->categories as $menu_category)
-                    <div class="accordion-item">
+                    <div class="accordion-item menu-category" data-category-id="{{ $menu_category->id }}">
                         <h2 class="accordion-header" id="heading{{ $menu_category->id }}">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $menu_category->id }}" aria-expanded="false" aria-controls="collapse{{ $menu_category->id }}">
                                 {{ $menu_category->name }}
@@ -366,8 +379,16 @@
                                 <div class="row">
                                     @foreach ($menu_section->products as $menu_product)
                                     @if ($menu_product->category_id == $menu_category->id)
-                                    <div class="col-xxl-3 col-sm-6 col-lg-4 mb-4">
-                                        <div class="tf__menu_item">
+                                    @php
+                                        $is_in_cart = in_array($menu_product->id, $cart_product_ids ?? []);
+                                    @endphp
+                                    <div class="col-xxl-3 col-sm-6 col-lg-4 mb-4 menu-product" data-category-id="{{ $menu_category->id }}">
+                                        <div class="tf__menu_item menu-product-card {{ $is_in_cart ? 'is-in-cart' : '' }}"
+                                             role="button"
+                                             tabindex="0"
+                                             data-product-id="{{ $menu_product->id }}"
+                                             data-category-id="{{ $menu_category->id }}"
+                                             data-search="{{ strtolower($menu_product->name . ' ' . $menu_product->short_description . ' ' . $menu_product->category->name) }}">
                                             <div class="tf__menu_item_text">
                                                 <label class="title" href="{{ route('show-product', $menu_product->slug) }}">{{ $menu_product->name }}</label>
                                                 <hr>
@@ -378,8 +399,13 @@
                                                 @else
                                                 <h5 class="price">{{ $currency_icon }}{{ $menu_product->price }}</h5>
                                                 @endif
-                                                <a class="tf__add_to_cart" href="javascript:;" onclick="load_product_model({{ $menu_product->id }})">{{__('user.add to cart')}}</a>
+                                                <div class="menu-item-cta">
+                                                    <span class="menu-item-cta-text">Tap to customize</span>
+                                                </div>
                                             </div>
+                                            @if ($is_in_cart)
+                                                <span class="in-cart-badge">In Cart</span>
+                                            @endif
                                         </div>
                                     </div>
                                     @endif
@@ -487,14 +513,108 @@
         height: 100%;
         display: flex;
         flex-direction: column;
+        background: #ffffff;
+        border: 1px solid #eef0f2;
+        border-radius: 14px;
+        padding: 16px 18px;
+        box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        cursor: pointer;
+        position: relative;
     }
     .tf__menu_item_text {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
     }
-    .tf__add_to_cart {
+    .tf__menu_item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(16, 24, 40, 0.12);
+        border-color: #d9dee4;
+    }
+    .menu-product-card.is-in-cart {
+        border-color: #16a34a;
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.15);
+    }
+    .menu-product-card.just-added {
+        animation: cartPulse 0.8s ease;
+    }
+    @keyframes cartPulse {
+        0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6); }
+        100% { box-shadow: 0 0 0 12px rgba(22, 163, 74, 0); }
+    }
+    .in-cart-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: #16a34a;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .menu-item-cta {
         margin-top: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        color: #1f2937;
+        background: #f3f4f6;
+        border-radius: 999px;
+        padding: 6px 12px;
+        width: fit-content;
+    }
+    .menu-item-cta-text {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+    .menu-search-bar {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .menu-search-input {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 999px;
+        padding: 10px 16px;
+        box-shadow: 0 8px 20px rgba(16, 24, 40, 0.06);
+    }
+    .menu-search-input i {
+        color: #9ca3af;
+    }
+    #menuSearchInput {
+        border: none;
+        outline: none;
+        flex: 1;
+        font-size: 16px;
+    }
+    #menuSearchClear {
+        border: none;
+        background: #111827;
+        color: #fff;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+    .menu-search-summary {
+        font-size: 13px;
+        color: #6b7280;
+    }
+    .menu-search-empty {
+        font-size: 14px;
+        font-weight: 600;
+        color: #dc2626;
     }
 
     /* Bottom Navigation Styles */
@@ -564,6 +684,139 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.style.display = 'none';
         }
     });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('menuSearchInput');
+    const clearButton = document.getElementById('menuSearchClear');
+    const summary = document.getElementById('menuSearchSummary');
+    const emptyState = document.getElementById('menuSearchEmpty');
+    const accordion = document.getElementById('menuAccordion');
+    const categoryItems = Array.from(document.querySelectorAll('.menu-category'));
+    const productCards = Array.from(document.querySelectorAll('.menu-product-card'));
+
+    function setCollapseState(item, open) {
+        const collapse = item.querySelector('.accordion-collapse');
+        const button = item.querySelector('.accordion-button');
+        if (!collapse || !button) return;
+
+        if (open) {
+            collapse.classList.add('show');
+            collapse.style.height = 'auto';
+            collapse.style.display = 'block';
+            button.classList.remove('collapsed');
+            button.setAttribute('aria-expanded', 'true');
+        } else {
+            collapse.classList.remove('show');
+            collapse.style.height = '';
+            collapse.style.display = '';
+            button.classList.add('collapsed');
+            button.setAttribute('aria-expanded', 'false');
+        }
+    }
+
+    function updateSearch() {
+        if (!searchInput) return;
+        const term = searchInput.value.trim().toLowerCase();
+        const hasTerm = term.length > 0;
+        let matchedCount = 0;
+        const matchedCategories = new Set();
+
+        productCards.forEach(function(card) {
+            const searchText = (card.dataset.search || '').toLowerCase();
+            const isMatch = !hasTerm || searchText.includes(term);
+            const wrapper = card.closest('.menu-product');
+            if (wrapper) {
+                wrapper.classList.toggle('d-none', !isMatch);
+            } else {
+                card.classList.toggle('d-none', !isMatch);
+            }
+            if (isMatch) {
+                matchedCount += 1;
+                matchedCategories.add(card.dataset.categoryId);
+            }
+        });
+
+        categoryItems.forEach(function(item) {
+            const id = item.dataset.categoryId;
+            const showCategory = !hasTerm || matchedCategories.has(id);
+            item.classList.toggle('d-none', !showCategory);
+            if (hasTerm && showCategory) {
+                setCollapseState(item, true);
+            } else if (!hasTerm) {
+                setCollapseState(item, false);
+            } else {
+                setCollapseState(item, false);
+            }
+        });
+
+        if (summary) {
+            summary.textContent = hasTerm ? `${matchedCount} item${matchedCount === 1 ? '' : 's'} found` : '';
+        }
+        if (emptyState) {
+            emptyState.classList.toggle('d-none', !(hasTerm && matchedCount === 0));
+        }
+        if (accordion) {
+            accordion.classList.toggle('search-active', hasTerm);
+        }
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', updateSearch);
+        searchInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                searchInput.value = '';
+                updateSearch();
+            }
+        });
+    }
+    if (clearButton) {
+        clearButton.addEventListener('click', function() {
+            if (!searchInput) return;
+            searchInput.value = '';
+            updateSearch();
+            searchInput.focus();
+        });
+    }
+    updateSearch();
+
+    document.addEventListener('click', function(event) {
+        const card = event.target.closest('.menu-product-card');
+        if (!card) return;
+        const productId = card.dataset.productId;
+        if (productId) {
+            load_product_model(productId);
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key !== 'Enter') return;
+        const card = document.activeElement;
+        if (card && card.classList.contains('menu-product-card')) {
+            const productId = card.dataset.productId;
+            if (productId) {
+                load_product_model(productId);
+            }
+        }
+    });
+
+    window.markProductInCart = function(productId) {
+        const card = document.querySelector(`.menu-product-card[data-product-id="${productId}"]`);
+        if (!card) return;
+        card.classList.add('is-in-cart');
+        card.classList.add('just-added');
+        let badge = card.querySelector('.in-cart-badge');
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'in-cart-badge';
+            badge.textContent = 'In Cart';
+            card.appendChild(badge);
+        }
+        window.setTimeout(function() {
+            card.classList.remove('just-added');
+        }, 900);
+    };
 });
 </script>
 @endsection

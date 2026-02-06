@@ -203,6 +203,8 @@ $products = Product::with('category')->where(['status' => 1])->whereIn('id', $cu
             'items' => $items
         );
 
+        $cart_product_ids = collect(Cart::content())->pluck('id')->unique()->values()->all();
+
         return view('index')->with([
             'seo_setting' => $seo_setting,
             'slider' => $slider,
@@ -216,7 +218,8 @@ $products = Product::with('category')->where(['status' => 1])->whereIn('id', $cu
             'testimonial' => $testimonial,
             'blog' => $blog,
             'video_section' => $video_section,
-            'why_choose_us' => $why_choose_us
+            'why_choose_us' => $why_choose_us,
+            'cart_product_ids' => $cart_product_ids
         ]);
 
     }
