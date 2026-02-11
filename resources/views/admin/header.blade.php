@@ -107,4 +107,31 @@
 
   </style>
 
+<style>
+  /* Admin text contrast override */
+  body,
+  .main-content,
+  .card,
+  .card-body,
+  .section-header h1,
+  .section-header-breadcrumb,
+  .breadcrumb-item,
+  .form-control,
+  .table td,
+  .table th,
+  .dropdown-item,
+  .main-sidebar .sidebar-menu li a span,
+  .main-sidebar .sidebar-menu li a,
+  .main-navbar .navbar-nav .nav-link,
+  label,
+  p,
+  small {
+    color: #111111 !important;
+  }
+
+  .text-muted {
+    color: #3a3a3a !important;
+  }
+</style>
+
 </head>
