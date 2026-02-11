@@ -520,6 +520,11 @@ style='display: none'
     {
         $order = $this->getOrderDetails($order_result, $customerDetails, $active_table);
         try {
+            $receipt = $this->printerService->getFormattedReceipt($order);
+
+            // Save receipt to the order record
+            \App\Models\Order::where('id', $order_result['id'])->update(['print_receipt' => $receipt]);
+
             // Print to kitchen
             $this->printerService->printToKitchen($order);
 

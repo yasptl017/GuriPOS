@@ -281,6 +281,9 @@
 
                         <div class="text-md-right print-area">
                             <hr>
+                            <button class="btn btn-info btn-icon icon-left" onclick="viewReceipt({{ $order->id }})">
+                                <i class="fas fa-receipt"></i> View Receipt
+                            </button>
                             <button class="btn btn-success btn-icon icon-left print_btn" data-toggle="modal"
                                     data-target="#printModal" onclick="printData({{ $order->id }})"><i
                                     class="fas fa-print"></i> {{__('admin.Print')}}</button>
@@ -314,6 +317,32 @@
             </div>
         </div>
     </div>
+    <!-- Receipt Modal -->
+    <div class="modal fade" id="receiptModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-receipt text-info mr-2"></i>Print Receipt</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 0;">
+                    <pre id="receiptContent" style="font-family: 'Courier New', monospace; font-size: 13px; background:#f8f9fa; padding: 16px; margin:0; white-space: pre-wrap; max-height: 70vh; overflow-y: auto;"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" onclick="printReceiptFromModal()">
+                        <i class="fas fa-print mr-1"></i> Print to Printer
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="browserPrintReceipt()">
+                        <i class="fas fa-print mr-1"></i> Print (Browser)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function deleteData(id) {
             $("#deleteForm").attr("action", '{{ url("admin/delete-order/") }}' + "/" + id)
@@ -324,18 +353,53 @@
             $("#printForm").attr("action", '{{ url("admin/order-print/") }}' + "/" + id)
         }
 
-        // (function($) {
-        //     "use strict";
-        //     $(document).ready(function() {
+        var _receiptOrderId = null;
 
-        //         $(".print_btn").on("click", function(){
-        //             $(".custom_click").click();
-        //             window.print()
-        //         })
+        function viewReceipt(orderId) {
+            _receiptOrderId = orderId;
+            $('#receiptContent').text('Loading…');
+            $('#receiptModal').modal('show');
+            $.ajax({
+                url: '{{ url("admin/order-receipt") }}/' + orderId,
+                type: 'GET',
+                success: function(response) {
+                    if (response.receipt) {
+                        $('#receiptContent').text(response.receipt);
+                    } else {
+                        $('#receiptContent').text('No receipt saved yet.\nUse the Print button to generate and save a receipt.');
+                    }
+                },
+                error: function() {
+                    $('#receiptContent').text('Error loading receipt.');
+                }
+            });
+        }
 
-        //     });
-        // })(jQuery);
+        function printReceiptFromModal() {
+            if (!_receiptOrderId) return;
+            $.ajax({
+                url: '{{ url("admin/order-print") }}/' + _receiptOrderId,
+                type: 'POST',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function() {
+                    toastr.success('Sent to printer successfully');
+                    // Refresh the receipt display
+                    viewReceipt(_receiptOrderId);
+                },
+                error: function() {
+                    toastr.error('Failed to send to printer');
+                }
+            });
+        }
 
+        function browserPrintReceipt() {
+            var content = $('#receiptContent').text();
+            var w = window.open('', '_blank', 'width=400,height=600');
+            w.document.write('<html><head><title>Receipt</title><style>body{font-family:monospace;font-size:13px;white-space:pre;margin:10px;}</style></head><body>' + content.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</body></html>');
+            w.document.close();
+            w.focus();
+            w.print();
+        }
     </script>
 
 @endsection

@@ -162,6 +162,11 @@ class PrinterService
     }
 
 
+    public function getFormattedReceipt($order): string
+    {
+        return $this->formatOrderDetails($order);
+    }
+
     public function printToDesk($order)
     {
         if (!$this->deskPrinter) {

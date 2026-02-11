@@ -351,22 +351,40 @@ class OrderController extends Controller
 
     }
 
-    public function printOrder($id)
+    public function printOrder(Request $request, $id)
     {
-        $order = $this->getOrderDetails($id);
+        $orderDetails = $this->getOrderDetails($id);
         try {
-            // Print to kitchen
-            // $this->printerService->printToKitchen($order);
+            $receipt = $this->printerService->getFormattedReceipt($orderDetails);
+
+            // Save receipt to order record
+            Order::where('id', $id)->update(['print_receipt' => $receipt]);
 
             // Print to desk
-            $this->printerService->printToDesk($order);
+            $this->printerService->printToDesk($orderDetails);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['message' => 'Printed successfully', 'receipt' => $receipt]);
+            }
 
             $notification = trans('Print successfully');
             $notification = array('messege' => $notification . $id, 'alert-type' => 'success');
-            return redirect()->route('admin.all-order')->with($notification);
+            return redirect()->back()->with($notification);
         } catch (Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['message' => 'Printing failed: ' . $e->getMessage()], 500);
+            }
             return response()->json(['message' => 'Printing failed: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function viewReceipt($id)
+    {
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json(['receipt' => null, 'message' => 'Order not found'], 404);
+        }
+        return response()->json(['receipt' => $order->print_receipt]);
     }
 
     private function getOrderDetails($id)

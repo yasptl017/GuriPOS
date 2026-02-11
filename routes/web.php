@@ -345,6 +345,7 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::delete('delete-order/{id}', [OrderController::class, 'destroy'])->name('delete-order');
         Route::put('update-order-status/{id}', [OrderController::class, 'updateOrderStatus'])->name('update-order-status');
         Route::post('order-print/{id}', [OrderController::class, 'printOrder'])->name('order-print');
+        Route::get('order-receipt/{id}', [OrderController::class, 'viewReceipt'])->name('order-receipt');
         Route::get('orders/export', [OrderController::class, 'export'])->name('orders.export');
 
         Route::get('reservation', [OrderController::class, 'reservation'])->name('reservation');
