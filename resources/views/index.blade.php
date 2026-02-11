@@ -266,7 +266,7 @@
         OFFERS SECTION START
     ==============================-->
 
-    <section class="tf__offers mt_120">
+    <section class="tf__offers mt_70">
     <div class="container">
      <!--
        <div class="row justify-content-center">
