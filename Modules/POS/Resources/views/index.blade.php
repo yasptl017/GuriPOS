@@ -111,6 +111,94 @@ select {
     padding-bottom: 16px !important;
 }
 
+.category-picker-btn {
+    width: 100%;
+    height: 42px;
+    border: 2px solid #0069d9;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+    color: #fff;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+}
+
+.pos-product-search-input {
+    height: 42px;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    padding: 0 14px;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.category-grid-item {
+    border: 1px solid #dbe2ea;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #fff;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    transition: all .15s ease;
+}
+
+.category-grid-item:hover {
+    border-color: #007bff;
+    background: #f3f8ff;
+}
+
+.category-grid-item.active {
+    border-color: #007bff;
+    background: #007bff;
+    color: #fff;
+}
+
+@media (max-width: 767px) {
+    .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* POS cart table: prevent long item names from overlapping Qty/Price/Action columns */
+.pos-cart-table {
+    table-layout: fixed;
+    width: 100%;
+}
+.pos-cart-table th,
+.pos-cart-table td {
+    vertical-align: middle;
+}
+.pos-cart-table th:nth-child(2),
+.pos-cart-table td:nth-child(2) {
+    width: 120px;
+}
+.pos-cart-table th:nth-child(3),
+.pos-cart-table td:nth-child(3) {
+    width: 90px;
+}
+.pos-cart-table th:nth-child(4),
+.pos-cart-table td:nth-child(4) {
+    width: 50px;
+    text-align: center;
+}
+.pos-cart-item-cell {
+    min-width: 0;
+}
+.pos-cart-item-name {
+    margin: 0;
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
 /* Mobile/touch device optimization */
 @media (hover: none) and (pointer: coarse) {
     .select2-container .select2-selection--single {
@@ -344,31 +432,26 @@ select {
                             <div class="card-header">
                                 <form id="product_search_form">
                                     <div class="row">
-                                        <div class="col-md-5">
-                                            <input type="text" class="form-control" name="name"
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control pos-product-search-input" name="name" id="product_name_search"
                                                    placeholder="{{__('admin.Search here..')}}" autocomplete="off"
                                                    value="{{ request()->get('name') }}">
                                         </div>
-                                        <div class="col-md-4">
-                                            <select name="category_id" id="category_id" class="form-control"
-                                                    onchange="submitForm()">
-                                                <option value="">{{__('admin.Select Category')}}</option>
-                                                @if (request()->has('category_id'))
-                                                    @foreach ($categories as $category)
-                                                        <option
-                                                            {{ request()->get('category_id') == $category->id ? 'selected' : '' }} value="{{ $category->id }}">{{ $category->name }}</option>
-                                                    @endforeach
-                                                @else
-                                                    @foreach ($categories as $category)
-                                                        <option
-                                                            value="{{ $category->id }}">{{ $category->name }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <button type="submit" class="btn btn-primary"
-                                                    id="search_btn_text">{{__('admin.Search')}}</button>
+                                        <div class="col-md-5">
+                                            <input type="hidden" name="category_id" id="category_id" value="{{ request()->get('category_id') }}">
+                                            @php
+                                                $selectedCategoryName = __('admin.Select Category');
+                                                if (request()->has('category_id')) {
+                                                    $selectedCategory = $categories->firstWhere('id', (int) request()->get('category_id'));
+                                                    if ($selectedCategory) {
+                                                        $selectedCategoryName = $selectedCategory->name;
+                                                    }
+                                                }
+                                            @endphp
+                                            <button type="button" class="category-picker-btn" onclick="openCategoryModal()">
+                                                <span id="selected_category_label">{{ $selectedCategoryName }}</span>
+                                                <i class="fas fa-th-large"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </form>
@@ -464,7 +547,7 @@ select {
                             </div>
                             <div class="card-body" style="padding-top: 8px;">
                                 <div class="shopping-card-body">
-                                    <table class="table">
+                                    <table class="table pos-cart-table">
                                         <thead>
                                         <tr>
                                             <th>{{__('admin.Item')}}</th>
@@ -480,8 +563,8 @@ select {
                                         @endphp
                                         @foreach ($cart_contents as $cart_index => $cart_content)
                                             <tr>
-                                                <td>
-                                                    <p style="line-height: 0 !important;">{{ substr($cart_content['name'], 0, 20) }}
+                                                <td class="pos-cart-item-cell">
+                                                    <p class="pos-cart-item-name">{{ $cart_content['name'] }}
                                                         @if (!empty($cart_content['options']['size']) || strtolower($cart_content['options']['size']) !== 'regular')
                                                             ({{ $cart_content['options']['size'] }})
                                                         @endif
@@ -698,6 +781,36 @@ select {
         </div>
     </div>
 
+    <div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="padding: 14px 18px 10px;">
+                    <h5 class="modal-title"><i class="fas fa-layer-group text-primary mr-2"></i>{{ __('admin.Select Category') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 14px 18px;">
+                    <div class="category-grid">
+                        <button type="button" class="category-grid-item {{ request()->get('category_id') ? '' : 'active' }}"
+                                data-id="" data-name="All" onclick="selectCategory(this)">
+                            {{ __('admin.All') }}
+                        </button>
+                        @foreach ($categories as $category)
+                            <button type="button"
+                                    class="category-grid-item {{ (string) request()->get('category_id') === (string) $category->id ? 'active' : '' }}"
+                                    data-id="{{ $category->id }}"
+                                    data-name="{{ $category->name }}"
+                                    onclick="selectCategory(this)">
+                                {{ $category->name }}
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Receive Modal -->
     <div class="modal fade" id="receiveModal" tabindex="-1" role="dialog" aria-labelledby="receiveModalLabel"
          aria-hidden="true">
@@ -760,6 +873,7 @@ select {
         (function ($) {
             "use strict";
             $(document).ready(function () {
+                let posSearchDebounceTimer = null;
                 $("#coupon_form").on("submit", function (e) {
                     e.preventDefault();
 
@@ -965,19 +1079,14 @@ select {
                 $("#product_search_form").on("submit", function (e) {
                     e.preventDefault();
 
-                    $("#search_btn_text").html(`{{__('admin.Searching...')}}`)
-
                     $.ajax({
                         type: 'get',
                         data: $('#product_search_form').serialize(),
                         url: "{{ route('admin.load-products') }}",
                         success: function (response) {
-                            $("#search_btn_text").html(`{{__('admin.Search')}}`)
                             $(".product_body").html(response)
                         },
                         error: function (response) {
-                            $("#search_btn_text").html(`{{__('admin.Search')}}`)
-
                             if (response.status == 500) {
                                 toastr.error("{{__('admin.Server error occured')}}")
                             }
@@ -988,7 +1097,14 @@ select {
 
                         }
                     });
-                })
+                });
+
+                $("#product_name_search").on("input", function () {
+                    clearTimeout(posSearchDebounceTimer);
+                    posSearchDebounceTimer = setTimeout(function () {
+                        submitForm();
+                    }, 300);
+                });
 
                 function fetchPendingOrderCount() {
                     $.ajax({
@@ -1228,35 +1344,22 @@ select {
         }
 
         function submitForm() {
-            $("#product_search_form").on("submit", function (e) {
-                e.preventDefault();
-
-                $("#search_btn_text").html(`{{__('admin.Searching...')}}`);
-
-                $.ajax({
-                    type: 'get',
-                    data: $('#product_search_form').serialize(),
-                    url: "{{ route('admin.load-products') }}",
-                    success: function (response) {
-                        $("#search_btn_text").html(`{{__('admin.Search')}}`);
-                        $(".product_body").html(response);
-                    },
-                    error: function (response) {
-                        $("#search_btn_text").html(`{{__('admin.Search')}}`);
-
-                        if (response.status == 500) {
-                            toastr.error("{{__('admin.Server error occured')}}");
-                        }
-
-                        if (response.status == 403) {
-                            toastr.error(response.responseJSON.message);
-                        }
-                    }
-                });
-            });
-
-
             $("#product_search_form").submit();
+        }
+
+        function openCategoryModal() {
+            $("#categoryModal").modal("show");
+        }
+
+        function selectCategory(element) {
+            const categoryId = $(element).data("id");
+            const categoryName = $(element).data("name") || "All";
+            $("#category_id").val(categoryId);
+            $("#selected_category_label").text(categoryName || "{{ __('admin.Select Category') }}");
+            $(".category-grid-item").removeClass("active");
+            $(element).addClass("active");
+            $("#categoryModal").modal("hide");
+            submitForm();
         }
 
         function updateTotal() {

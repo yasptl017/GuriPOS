@@ -1,4 +1,4 @@
-<table class="table">
+<table class="table pos-cart-table">
     <thead>
     <th>{{__('admin.Item')}}</th>
     <th>{{__('admin.Qty')}}</th>
@@ -12,8 +12,8 @@
     @endphp
     @foreach ($cart_contents as $cart_index => $cart_content)
         <tr>
-            <td>
-                <p>
+            <td class="pos-cart-item-cell">
+                <p class="pos-cart-item-name">
                     {{ $cart_content['name'] }}
                     @if (!empty($cart_content['options']['size']) || strtolower($cart_content['options']['size']) !== 'regular')
                         ({{ $cart_content['options']['size'] }})
