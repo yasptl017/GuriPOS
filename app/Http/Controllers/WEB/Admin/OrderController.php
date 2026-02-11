@@ -14,6 +14,8 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 use stdClass;
 
@@ -169,9 +171,101 @@ class OrderController extends Controller
 
     public function reservation()
     {
+        if (Schema::hasColumn('reservations', 'admin_viewed_at')) {
+            Reservation::whereNull('admin_viewed_at')->update([
+                'admin_viewed_at' => now(),
+            ]);
+        }
+
         $reservations = Reservation::with('user')->orderBy('id', 'desc')->get();
 
         return view('admin.reservation', compact('reservations'));
+    }
+
+    public function reservationNotifications()
+    {
+        $today = Carbon::today();
+        $nextThreeDays = Carbon::today()->addDays(2);
+        $threeDaysAgo = Carbon::now()->subDays(2)->startOfDay();
+
+        $relevantQuery = Reservation::with('user')
+            ->where(function ($query) use ($today, $nextThreeDays, $threeDaysAgo) {
+                $query->whereBetween('reserve_date', [$today->toDateString(), $nextThreeDays->toDateString()])
+                    ->orWhere('created_at', '>=', $threeDaysAgo);
+            })
+            ->orderBy('id', 'desc');
+
+        $relevantCount = (clone $relevantQuery)->count();
+
+        if (Schema::hasColumn('reservations', 'admin_viewed_at')) {
+            $unviewedQuery = (clone $relevantQuery)->whereNull('admin_viewed_at');
+        } else {
+            $unviewedQuery = clone $relevantQuery;
+        }
+
+        $unviewedCount = (clone $unviewedQuery)->count();
+        $latestUnviewed = $unviewedQuery->take(8)->get();
+
+        $items = $latestUnviewed->map(function ($reservation) {
+            return [
+                'id' => $reservation->id,
+                'name' => $reservation->name ?: optional($reservation->user)->name ?: 'Guest',
+                'person_qty' => $reservation->person_qty,
+                'reserve_date' => $reservation->reserve_date,
+                'reserve_time' => $reservation->reserve_time,
+                'created_at_human' => optional($reservation->created_at)->diffForHumans(),
+            ];
+        });
+
+        return response()->json([
+            'relevant_count' => $relevantCount,
+            'unviewed_count' => $unviewedCount,
+            'items' => $items,
+        ]);
+    }
+
+    public function reservationPopupData()
+    {
+        $today = Carbon::today();
+        $nextThreeDays = Carbon::today()->addDays(2);
+        $threeDaysAgo = Carbon::now()->subDays(2)->startOfDay();
+
+        $reservations = Reservation::with('user')
+            ->where(function ($query) use ($today, $nextThreeDays, $threeDaysAgo) {
+                $query->whereBetween('reserve_date', [$today->toDateString(), $nextThreeDays->toDateString()])
+                    ->orWhere('created_at', '>=', $threeDaysAgo);
+            })
+            ->orderBy('reserve_date', 'asc')
+            ->orderBy('reserve_time', 'asc')
+            ->orderBy('id', 'desc')
+            ->take(40)
+            ->get()
+            ->map(function ($reservation) {
+                return [
+                    'id' => $reservation->id,
+                    'name' => $reservation->name ?: optional($reservation->user)->name ?: 'Guest',
+                    'phone' => $reservation->phone,
+                    'person_qty' => $reservation->person_qty,
+                    'reserve_date' => $reservation->reserve_date,
+                    'reserve_time' => $reservation->reserve_time,
+                    'created_at_human' => optional($reservation->created_at)->diffForHumans(),
+                ];
+            });
+
+        return response()->json([
+            'items' => $reservations,
+        ]);
+    }
+
+    public function markReservationNotificationsViewed()
+    {
+        if (Schema::hasColumn('reservations', 'admin_viewed_at')) {
+            Reservation::whereNull('admin_viewed_at')->update([
+                'admin_viewed_at' => now(),
+            ]);
+        }
+
+        return response()->json(['status' => 'ok']);
     }
 
     public function update_reservation_status(Request $request, $id)

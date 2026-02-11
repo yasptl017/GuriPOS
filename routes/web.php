@@ -378,6 +378,9 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::get('orders/export', [OrderController::class, 'export'])->name('orders.export');
 
         Route::get('reservation', [OrderController::class, 'reservation'])->name('reservation');
+        Route::get('reservation-notifications', [OrderController::class, 'reservationNotifications'])->name('reservation-notifications');
+        Route::get('reservation-popup-data', [OrderController::class, 'reservationPopupData'])->name('reservation-popup-data');
+        Route::post('reservation-mark-viewed', [OrderController::class, 'markReservationNotificationsViewed'])->name('reservation-mark-viewed');
         Route::put('update-reservation-status/{id}', [OrderController::class, 'update_reservation_status'])->name('update-reservation-status');
         Route:: delete('delete-reservation/{id}', [OrderController::class, 'delete_reservation'])->name('delete-reservation');
 

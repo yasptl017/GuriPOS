@@ -24,24 +24,36 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        // Start with a base query
-        $query = Product::with('category')->orderBy('id', 'desc');
-        
-        // Check if there's a search query
+        $query = Product::query()
+            ->select(['id', 'name', 'price', 'today_special'])
+            ->orderByDesc('id');
+
         if ($request->filled('search')) {
-            $searchTerm = $request->input('search');
+            $searchTerm = trim((string) $request->input('search'));
             $query->where('name', 'like', '%' . $searchTerm . '%');
         }
-        
-        // Paginate the filtered results
-        $products = $query->paginate(10)->appends($request->all());
-        
-        $orderProducts = OrderProduct::all();
+
+        $products = $query->paginate(20)->appends($request->all());
+
+        $orderedProductIds = OrderProduct::query()
+            ->whereIn('product_id', $products->pluck('id'))
+            ->distinct()
+            ->pluck('product_id')
+            ->flip()
+            ->toArray();
+
         $setting = Setting::first();
         $frontend_url = $setting->frontend_url;
         $frontend_view = $frontend_url . 'single-product?slug=';
-    
-        return view('admin.product', compact('products', 'orderProducts', 'setting', 'frontend_view'));
+
+        if ($request->ajax()) {
+            return response()->json([
+                'rows' => view('admin.partials.product_table_rows', compact('products', 'orderedProductIds', 'setting'))->render(),
+                'pagination' => $products->links('custom_paginator')->toHtml(),
+            ]);
+        }
+
+        return view('admin.product', compact('products', 'orderedProductIds', 'setting', 'frontend_view'));
     }
     
 

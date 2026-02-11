@@ -14,12 +14,11 @@
                     <i class="fas fa-plus"></i> {{ __('admin.Add New') }}
                 </a>
             </div>
-            <!-- Search Form -->
-            <form method="GET" action="{{ route('admin.product.index') }}" class="mb-3">
+            <form method="GET" action="{{ route('admin.product.index') }}" class="mb-3" id="product-search-form">
                 <div class="input-group">
-                    <input type="text" name="search" class="form-control" placeholder="{{ __('Search Products') }}" value="{{ request('search') }}">
+                    <input type="text" name="search" id="product-live-search" class="form-control" placeholder="{{ __('Search Products') }}" value="{{ request('search') }}" autocomplete="off">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="submit">
+                        <button class="btn btn-outline-secondary" type="submit" id="product-search-button">
                             {{ __('admin.Search') }}
                         </button>
                     </div>
@@ -30,7 +29,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive table-invoice">
-                                <table class="table table-striped" id="dataTable">
+                                <table class="table table-striped">
                                     <thead>
                                         <tr>
                                             <th>{{ __('admin.SN') }}</th>
@@ -40,57 +39,12 @@
                                             <th>{{ __('admin.Action') }}</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @foreach ($products as $index => $product)
-                                        <tr>
-                                            <td>{{ $products->firstItem() + $index }}</td>
-                                            <td>
-                                                <a target="_blank" href="#">{{ $product->name }}</a>
-                                            </td>
-                                            <td>{{ $setting->currency_icon }}{{ $product->price }}</td>
-                                            <td>
-                                                @if ($product->today_special)
-                                                <span class="badge badge-success">{{ __('admin.Yes') }}</span>
-                                                @else
-                                                <span class="badge badge-danger">{{ __('admin.No') }}</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <a href="{{ route('admin.product.edit', $product->id) }}" class="btn btn-primary btn-sm">
-                                                    <i class="fa fa-edit" aria-hidden="true"></i>
-                                                </a>
-                                                @php
-                                                    $existOrder = $orderProducts->where('product_id', $product->id)->count();
-                                                @endphp
-                                                @if ($existOrder == 0)
-                                                <a href="javascript:;" data-toggle="modal" data-target="#deleteModal" class="btn btn-danger btn-sm" onclick="deleteData({{ $product->id }})">
-                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                </a>
-                                                @else
-                                                <a href="javascript:;" data-toggle="modal" data-target="#canNotDeleteModal" class="btn btn-danger btn-sm" disabled>
-                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                </a>
-                                                @endif
-                                                <div class="dropdown d-inline">
-                                                    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fas fa-cog"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                                        <a class="dropdown-item has-icon" href="{{ route('admin.product-gallery', $product->id) }}">
-                                                            <i class="far fa-image"></i> {{ __('admin.Image Gallery') }}
-                                                        </a>
-                                                        <a class="dropdown-item has-icon" href="{{ route('admin.product-variant', $product->id) }}">
-                                                            <i class="fas fa-cog"></i> {{ __('admin.Size / Optional Item') }}
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @endforeach
+                                    <tbody id="product-table-body">
+                                        @include('admin.partials.product_table_rows', ['products' => $products, 'orderedProductIds' => $orderedProductIds, 'setting' => $setting])
                                     </tbody>
                                 </table>
                                 <!-- Custom Pagination -->
-                                <div class="d-flex justify-content-center">
+                                <div class="d-flex justify-content-end" id="product-pagination">
                                     {{ $products->links('custom_paginator') }}
                                 </div>
                             </div>
@@ -117,6 +71,54 @@
 </div>
 
 <script>
+    (function ($) {
+        "use strict";
+
+        const $searchInput = $('#product-live-search');
+        const $searchButton = $('#product-search-button');
+        const $tbody = $('#product-table-body');
+        const $pagination = $('#product-pagination');
+        const endpoint = "{{ route('admin.product.index') }}";
+        let debounceTimer = null;
+
+        function fetchProducts(pageUrl = null) {
+            const url = pageUrl || endpoint;
+            const keyword = $searchInput.val() || '';
+
+            $searchButton.prop('disabled', true).text('Searching...');
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: { search: keyword },
+                success: function (response) {
+                    $tbody.html(response.rows);
+                    $pagination.html(response.pagination);
+                },
+                complete: function () {
+                    $searchButton.prop('disabled', false).text("{{ __('admin.Search') }}");
+                }
+            });
+        }
+
+        $searchInput.on('input', function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () {
+                fetchProducts();
+            }, 300);
+        });
+
+        $('#product-search-form').on('submit', function (e) {
+            e.preventDefault();
+            fetchProducts();
+        });
+
+        $(document).on('click', '#product-pagination a', function (e) {
+            e.preventDefault();
+            fetchProducts($(this).attr('href'));
+        });
+    })(jQuery);
+
     function deleteData(id) {
         $("#deleteForm").attr("action", '{{ url("admin/product/") }}' + "/" + id);
     }
