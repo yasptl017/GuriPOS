@@ -7,7 +7,7 @@
     <section class="section">
         <div class="section-header">
             <h1>Order Control</h1>
-            <div class="section-header-subtitle">Enable or disable Pickup and Delivery operations for customers</div>
+           
         </div>
 
         <div class="section-body">

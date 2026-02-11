@@ -10,12 +10,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\WEB\Admin\AboutUsController;
 use App\Http\Controllers\WEB\Admin\AdminController;
 use App\Http\Controllers\WEB\Admin\AdminProfileController;
-use App\Http\Controllers\WEB\Admin\AdvertisementController;
 use App\Http\Controllers\WEB\Admin\Auth\AdminForgotPasswordController;
 use App\Http\Controllers\WEB\Admin\Auth\AdminLoginController;
-use App\Http\Controllers\WEB\Admin\BlogCategoryController;
-use App\Http\Controllers\WEB\Admin\BlogCommentController;
-use App\Http\Controllers\WEB\Admin\BlogController;
 use App\Http\Controllers\WEB\Admin\BreadcrumbController;
 use App\Http\Controllers\WEB\Admin\ContactMessageController;
 use App\Http\Controllers\WEB\Admin\ContactPageController;
@@ -38,12 +34,10 @@ use App\Http\Controllers\WEB\Admin\MenuVisibilityController;
 use App\Http\Controllers\WEB\Admin\OrderController;
 use App\Http\Controllers\WEB\Admin\OurChefController;
 use App\Http\Controllers\WEB\Admin\PaymentMethodController;
-use App\Http\Controllers\WEB\Admin\PopularBlogController;
 use App\Http\Controllers\WEB\Admin\PrivacyPolicyController;
 use App\Http\Controllers\WEB\Admin\ProductCategoryController;
 use App\Http\Controllers\WEB\Admin\ProductController;
 use App\Http\Controllers\WEB\Admin\ProductGalleryController;
-use App\Http\Controllers\WEB\Admin\ProductReviewController;
 use App\Http\Controllers\WEB\Admin\ProductVariantController;
 use App\Http\Controllers\WEB\Admin\ServiceController;
 use App\Http\Controllers\WEB\Admin\SettingController;
@@ -242,20 +236,6 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::resource('terms-and-condition', TermsAndConditionController::class);
         Route::resource('privacy-policy', PrivacyPolicyController::class);
 
-        Route::resource('blog-category', BlogCategoryController::class);
-        Route::put('blog-category-status/{id}', [BlogCategoryController::class, 'changeStatus'])->name('blog.category.status');
-
-        Route::resource('blog', BlogController::class);
-        Route::put('blog-status/{id}', [BlogController::class, 'changeStatus'])->name('blog.status');
-
-        Route::resource('popular-blog', PopularBlogController::class);
-        Route::put('popular-blog-status/{id}', [PopularBlogController::class, 'changeStatus'])->name('popular-blog.status');
-
-        Route::resource('blog-comment', BlogCommentController::class);
-        Route::put('blog-comment-status/{id}', [BlogCommentController::class, 'changeStatus'])->name('blog-comment.status');
-
-        Route::get('clear-database', [SettingController::class, 'showClearDatabasePage'])->name('clear-database');
-        Route::delete('clear-database', [SettingController::class, 'clearDatabase'])->name('clear-database');
 
         Route::get('subscriber', [SubscriberController::class, 'index'])->name('subscriber');
         Route::delete('delete-subscriber/{id}', [SubscriberController::class, 'destroy'])->name('delete-subscriber');
@@ -296,11 +276,6 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::resource('faq', FaqController::class);
         Route::put('faq-status/{id}', [FaqController::class, 'changeStatus'])->name('faq-status');
 
-        Route::get('product-review', [ProductReviewController::class, 'index'])->name('product-review');
-        Route::put('product-review-status/{id}', [ProductReviewController::class, 'changeStatus'])->name('product-review-status');
-        Route::get('show-product-review/{id}', [ProductReviewController::class, 'show'])->name('show-product-review');
-        Route::delete('delete-product-review/{id}', [ProductReviewController::class, 'destroy'])->name('delete-product-review');
-
         Route::get('customer-list', [CustomerController::class, 'index'])->name('customer-list');
         Route::get('customer-show/{id}', [CustomerController::class, 'show'])->name('customer-show');
         Route::put('customer-status/{id}', [CustomerController::class, 'changeStatus'])->name('customer-status');
@@ -320,11 +295,6 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::post('update-default-avatar', [ContentController::class, 'updateDefaultAvatar'])->name('update-default-avatar');
         Route::get('app-section', [ContentController::class, 'app_section'])->name('app-section');
         Route::post('update-app-section', [ContentController::class, 'update_app_section'])->name('update-app-section');
-
-        Route::get('advertisement', [AdvertisementController::class, 'index'])->name('advertisement');
-        Route::post('store-advertisement', [AdvertisementController::class, 'store'])->name('store-advertisement');
-        Route::put('update-advertisement/{id}', [AdvertisementController::class, 'update'])->name('update-advertisement');
-        Route::delete('advertisement-delete/{id}', [AdvertisementController::class, 'destroy'])->name('advertisement-delete');
 
         Route::get('login-page', [ContentController::class, 'loginPage'])->name('login-page');
         Route::post('update-login-page', [ContentController::class, 'updateloginPage'])->name('update-login-page');
