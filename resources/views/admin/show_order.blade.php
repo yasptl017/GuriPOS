@@ -3,6 +3,63 @@
     <title>{{__('admin.Invoice')}}</title>
 @endsection
 <style>
+    .invoice {
+        border: 1px solid #e6e8ec;
+        border-radius: 14px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        background: #fff;
+        padding: 18px;
+    }
+
+    .invoice-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .invoice-number {
+        background: #f8fafc;
+        border: 1px solid #dbe3ee;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-weight: 700;
+    }
+
+    .order-status-card {
+        border: 1px solid #e6e8ec;
+        border-radius: 12px;
+        background: #f8fafc;
+        padding: 14px;
+    }
+
+    .order-status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 7px 0;
+        border-bottom: 1px dashed #d6dbe3;
+    }
+
+    .order-status-row:last-child {
+        border-bottom: 0;
+    }
+
+    .invoice-summary {
+        border: 1px solid #e6e8ec;
+        border-radius: 12px;
+        background: #fff;
+        padding: 14px;
+    }
+
+    .invoice-summary .invoice-detail-item {
+        margin-bottom: 8px;
+    }
+
+    .invoice-print .table th {
+        background: #f8fafc;
+    }
+
     @media print {
         /* Set paper width to 80mm for thermal printer */
         body {
@@ -216,61 +273,53 @@
                                     <div class="row mt-3">
                                         <div class="col-lg-6 order-status">
                                             <div class="section-title">{{__('admin.Order Status')}}</div>
-                                            <form action="{{ route('admin.update-order-status',$order->id) }}"
-                                                  method="POST">
-                                                @csrf
-                                                @method("PUT")
-                                                <div class="form-group">
-                                                    <label for="">{{__('admin.Payment')}}</label>
-                                                    <select name="payment_status" id="" class="form-control">
-                                                        <option
-                                                            {{ $order->payment_status == 0 ? 'selected' : '' }} value="0">{{__('admin.Pending')}}</option>
-                                                        <option
-                                                            {{ $order->payment_status == 1 ? 'selected' : '' }} value="1">{{__('admin.Success')}}</option>
-                                                    </select>
+                                            <div class="order-status-card">
+                                                <div class="order-status-row">
+                                                    <strong>{{__('admin.Payment')}}</strong>
+                                                    @if($order->payment_status == 1)
+                                                        <span class="badge badge-success">{{__('admin.Success')}}</span>
+                                                    @else
+                                                        <span class="badge badge-warning">{{__('admin.Pending')}}</span>
+                                                    @endif
                                                 </div>
-
-                                                <div class="form-group">
-                                                    <label for="">{{__('admin.Order')}}</label>
-                                                    <select name="order_status" id="" class="form-control">
-                                                        <option
-                                                            {{ $order->order_status == 0 ? 'selected' : '' }} value="0">{{__('admin.Pending')}}</option>
-                                                        <option
-                                                            {{ $order->order_status == 1 ? 'selected' : '' }} value="1">{{__('admin.In Progress')}}</option>
-                                                        <option
-                                                            {{ $order->order_status == 2 ? 'selected' : '' }}  value="2">{{__('admin.Delivered')}}</option>
-                                                        <option
-                                                            {{ $order->order_status == 3 ? 'selected' : '' }} value="3">{{__('admin.Completed')}}</option>
-                                                        <option
-                                                            {{ $order->order_status == 4 ? 'selected' : '' }} value="4">{{__('admin.Declined')}}</option>
-                                                    </select>
+                                                <div class="order-status-row">
+                                                    <strong>{{__('admin.Order')}}</strong>
+                                                    @if ($order->order_status == 1)
+                                                        <span class="badge badge-primary">{{__('admin.In Progress')}}</span>
+                                                    @elseif ($order->order_status == 2)
+                                                        <span class="badge badge-info">{{__('admin.Delivered')}}</span>
+                                                    @elseif ($order->order_status == 3)
+                                                        <span class="badge badge-success">{{__('admin.Completed')}}</span>
+                                                    @elseif ($order->order_status == 4)
+                                                        <span class="badge badge-danger">{{__('admin.Declined')}}</span>
+                                                    @else
+                                                        <span class="badge badge-warning">{{__('admin.Pending')}}</span>
+                                                    @endif
                                                 </div>
-
-                                                <button class="btn btn-primary"
-                                                        type="submit">{{__('admin.Update Status')}}</button>
-                                            </form>
+                                            </div>
                                         </div>
 
                                         <div class="col-lg-6 text-right">
+                                            <div class="invoice-summary">
+                                                <div class="invoice-detail-item">
+                                                    <div class="invoice-detail-name">{{__('admin.Subtotal')}}
+                                                        : {{ $setting->currency_icon }}{{ round($order->sub_total, 2) }}</div>
+                                                </div>
+                                                <div class="invoice-detail-item">
+                                                    <div class="invoice-detail-name">{{__('admin.Discount')}}(-)
+                                                        : {{ $setting->currency_icon }}{{ round($order->coupon_price, 2) }}</div>
+                                                </div>
+                                                <div class="invoice-detail-item">
+                                                    <div class="invoice-detail-name">{{__('admin.Delivery Charge')}}
+                                                        : {{ $setting->currency_icon }}{{ round($order->delivery_charge, 2) }}</div>
+                                                </div>
 
-                                            <div class="invoice-detail-item">
-                                                <div class="invoice-detail-name">{{__('admin.Subtotal')}}
-                                                    : {{ $setting->currency_icon }}{{ round($order->sub_total, 2) }}</div>
-                                            </div>
-                                            <div class="invoice-detail-item">
-                                                <div class="invoice-detail-name">{{__('admin.Discount')}}(-)
-                                                    : {{ $setting->currency_icon }}{{ round($order->coupon_price, 2) }}</div>
-                                            </div>
-                                            <div class="invoice-detail-item">
-                                                <div class="invoice-detail-name">{{__('admin.Delivery Charge')}}
-                                                    : {{ $setting->currency_icon }}{{ round($order->delivery_charge, 2) }}</div>
-                                            </div>
-
-                                            <hr class="mt-2 mb-2">
-                                            <div class="invoice-detail-item">
-                                                <div
-                                                    class="invoice-detail-value invoice-detail-value-lg">{{__('admin.Grand Total')}}
-                                                    : {{ $setting->currency_icon }}{{ round($order->grand_total, 2) }}</div>
+                                                <hr class="mt-2 mb-2">
+                                                <div class="invoice-detail-item">
+                                                    <div
+                                                        class="invoice-detail-value invoice-detail-value-lg">{{__('admin.Grand Total')}}
+                                                        : {{ $setting->currency_icon }}{{ round($order->grand_total, 2) }}</div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -284,9 +333,7 @@
                             <button class="btn btn-info btn-icon icon-left" onclick="viewReceipt({{ $order->id }})">
                                 <i class="fas fa-receipt"></i> View Receipt
                             </button>
-                            <button class="btn btn-success btn-icon icon-left print_btn" data-toggle="modal"
-                                    data-target="#printModal" onclick="printData({{ $order->id }})"><i
-                                    class="fas fa-print"></i> {{__('admin.Print')}}</button>
+
                             <button class="btn btn-danger btn-icon icon-left" data-toggle="modal"
                                     data-target="#deleteModal" onclick="deleteData({{ $order->id }})"><i
                                     class="fas fa-times"></i> {{__('admin.Delete')}}</button>
