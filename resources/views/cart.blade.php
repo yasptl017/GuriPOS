@@ -69,30 +69,144 @@
         color: #ff7c08;
         transform: rotate(-90deg);
     }
+
+    /* Cart Cards */
+    .cart-cards-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px;
+        background: #f8f8f8;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .cart-cards-header .clear_all {
+        font-size: 13px;
+        color: #e74c3c;
+        font-weight: 600;
+        text-decoration: none;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+    .cart-cards-header .clear_all:hover {
+        color: #c0392b;
+        text-decoration: underline;
+    }
+
+    .cart-cards-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .cart-item-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #ebebeb;
+        border-radius: 10px;
+        padding: 14px 18px;
+        gap: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        transition: box-shadow 0.2s;
+    }
+
+    .cart-item-card:hover {
+        box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    }
+
+    .cart-item-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .cart-item-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: #222;
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cart-item-name:hover {
+        color: #ff7c08;
+    }
+
+    .cart-item-unit-price {
+        font-size: 13px;
+        color: #777;
+    }
+
+    .cart-item-size {
+        font-size: 12px;
+        color: #999;
+        background: #f0f0f0;
+        border-radius: 4px;
+        padding: 1px 7px;
+        display: inline-block;
+        width: fit-content;
+    }
+
+    .cart-item-addon {
+        font-size: 12px;
+        color: #888;
+    }
+
+    .cart-item-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-shrink: 0;
+    }
+
+    .cart-item-total h6 {
+        font-size: 15px;
+        font-weight: 700;
+        color: #ff7c08;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .tf__pro_icon .remove_item {
+        color: #ccc;
+        font-size: 18px;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+
+    .tf__pro_icon .remove_item:hover {
+        color: #e74c3c;
+    }
+
+    @media (max-width: 576px) {
+        .cart-item-card {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 12px 14px;
+        }
+
+        .cart-item-actions {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
 </style>
 @endsection
 
 @section('public-content')
-
-    <!--=============================
-        BREADCRUMB START
-    ==============================-->
-    <section class="tf__breadcrumb" style="background: url({{ asset($breadcrumb) }});">
-        <div class="tf__breadcrumb_overlay">
-            <div class="container">
-                <div class="tf__breadcrumb_text">
-                    <h1>{{__('user.Shopping Cart')}}</h1>
-                    <ul>
-                        <li><a href="{{ route('home') }}">{{__('user.Home')}}</a></li>
-                        <li><a href="javascript:">{{__('user.Shopping Cart')}}</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!--=============================
-        BREADCRUMB END
-    ==============================-->
 
     <section class="tf__cart_view mt_125 xs_mt_95 mb_100 xs_mb_70">
         <div class="container cart-main-body">
@@ -106,69 +220,53 @@
                 <div class="row">
                     <div class="col-lg-12 wow fadeInUp" data-wow-duration="1s">
                         <div class="tf__cart_list">
-                            <div class="table-responsive">
-                                <table>
-                                    <tbody>
-                                    <tr>
-                                        <th class="tf__pro_name">
-                                            {{__('user.details')}}
-                                        </th>
-                                        <th class="tf__pro_select">
-                                            {{__('user.quantity')}}
-                                        </th>
-                                        <th class="tf__pro_tk">
-                                            {{__('user.total')}}
-                                        </th>
-                                        <th class="tf__pro_icon">
-                                            <a class="clear_all" href="javascript:">{{__('user.clear all')}}</a>
-                                        </th>
-                                    </tr>
+                            <div class="cart-cards-header">
+                                <span>{{__('user.details')}}</span>
+                                <a class="clear_all" href="javascript:">{{__('user.clear all')}}</a>
+                            </div>
 
-                                    @php
-                                        $sub_total = 0;
-                                        $coupon_price = 0.00;
-                                    @endphp
-                                    @foreach ($cart_contents as $index => $cart_content)
-                                        <tr class="main-cart-item-{{ $cart_content->rowId }}">
-                                            <td class="tf__pro_name">
-                                                <a href="{{ route('show-product', $cart_content->options->slug) }}">{{ $cart_content->name }} - {{ $currency_icon }}{{ number_format($cart_content->price, 2) }}</a>
-                                                <span>{{ $cart_content->options->size ? $cart_content->options->size : '' }}</span>
-                                                @foreach ($cart_content->options->optional_items as $optional_item)
-                                                    <p>{{ $optional_item['optional_name'] }}
-                                                        (+{{ $currency_icon }}{{ number_format($optional_item['optional_price'], 2) }}
-                                                        )</p>
-                                                @endforeach
-                                                
-                                            </td>
-                                            @php
-                                                $item_price = $cart_content->price * $cart_content->qty;
-                                                $item_total = $item_price + $cart_content->options->optional_item_price;
-                                                $sub_total += $item_total;
-                                            @endphp
-                                            <td class="tf__pro_select" data-item-price="{{ $cart_content->price }}"
-                                                data-optional-price="{{ $cart_content->options->optional_item_price }}"
-                                                data-rowid="{{ $cart_content->rowId }}">
-                                                <div class="quentity_btn">
-                                                    <button class="btn btn-danger decrement_product"><i
-                                                            class="fal fa-minus"></i></button>
-                                                    <input class="quantity" type="text" readonly
-                                                           value="{{ $cart_content->qty }}">
-                                                    <button class="btn btn-success increament_product"><i
-                                                            class="fal fa-plus"></i></button>
-                                                </div>
-                                            </td>
-                                            <td class="tf__pro_tk">
-                                                <h6>{{ $currency_icon }}{{ number_format($item_total, 2) }}</h6>
-                                                <input type="hidden" class="product_total" value="{{ $item_total }}">
-                                            </td>
-                                            <td class="tf__pro_icon" data-remove-rowid="{{ $cart_content->rowId }}">
-                                                <a class="remove_item" href="javascript:"><i
-                                                        class="far fa-times"></i></a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
+                            @php
+                                $sub_total = 0;
+                                $coupon_price = 0.00;
+                            @endphp
+
+                            <div class="cart-cards-wrapper">
+                            @foreach ($cart_contents as $index => $cart_content)
+                                @php
+                                    $item_price = $cart_content->price * $cart_content->qty;
+                                    $item_total = $item_price + $cart_content->options->optional_item_price;
+                                    $sub_total += $item_total;
+                                @endphp
+                                <div class="cart-item-card main-cart-item-{{ $cart_content->rowId }}">
+                                    <div class="cart-item-info">
+                                        <a class="cart-item-name" href="{{ route('show-product', $cart_content->options->slug) }}">{{ $cart_content->name }}</a>
+                                        <span class="cart-item-unit-price">{{ $currency_icon }}{{ number_format($cart_content->price, 2) }}</span>
+                                        @if($cart_content->options->size)
+                                            <span class="cart-item-size">{{ $cart_content->options->size }}</span>
+                                        @endif
+                                        @foreach ($cart_content->options->optional_items as $optional_item)
+                                            <span class="cart-item-addon">+ {{ $optional_item['optional_name'] }} ({{ $currency_icon }}{{ number_format($optional_item['optional_price'], 2) }})</span>
+                                        @endforeach
+                                    </div>
+                                    <div class="cart-item-actions">
+                                        <div class="tf__pro_select quentity_btn"
+                                             data-item-price="{{ $cart_content->price }}"
+                                             data-optional-price="{{ $cart_content->options->optional_item_price }}"
+                                             data-rowid="{{ $cart_content->rowId }}">
+                                            <button class="btn btn-danger decrement_product"><i class="fal fa-minus"></i></button>
+                                            <input class="quantity" type="text" readonly value="{{ $cart_content->qty }}">
+                                            <button class="btn btn-success increament_product"><i class="fal fa-plus"></i></button>
+                                        </div>
+                                        <div class="tf__pro_tk cart-item-total">
+                                            <h6>{{ $currency_icon }}{{ number_format($item_total, 2) }}</h6>
+                                            <input type="hidden" class="product_total" value="{{ $item_total }}">
+                                        </div>
+                                        <div class="tf__pro_icon" data-remove-rowid="{{ $cart_content->rowId }}">
+                                            <a class="remove_item" href="javascript:"><i class="far fa-times"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                             </div>
                         </div>
                     </div>
@@ -396,30 +494,30 @@
     });
 });
             $(document).on("click", ".increament_product, .decrement_product", function () {
-                let parent_td = $(this).closest('td');
-                let item_price = parseFloat(parent_td.data('item-price'));
-                let optional_price = parseFloat(parent_td.data('optional-price'));
-                let quantity = parseInt(parent_td.find('.quantity').val());
+                let qty_div = $(this).closest('.quentity_btn');
+                let item_price = parseFloat(qty_div.data('item-price'));
+                let optional_price = parseFloat(qty_div.data('optional-price'));
+                let quantity = parseInt(qty_div.find('.quantity').val());
                 let new_qty = $(this).hasClass('increament_product') ? quantity + 1 : Math.max(1, quantity - 1);
 
-                parent_td.find('.quantity').val(new_qty);
+                qty_div.find('.quantity').val(new_qty);
                 let new_item_price = new_qty * item_price;
                 let new_sub_total_price = new_item_price + optional_price;
-                let parent_tr = parent_td.closest('tr');
+                let parent_card = qty_div.closest('.cart-item-card');
                 let product_sub_total_html = `<h6>{{ $currency_icon }}${new_sub_total_price.toFixed(2)}</h6>
         <input type="hidden" class="product_total" value="${new_sub_total_price}">`;
-                parent_tr.find('.tf__pro_tk').html(product_sub_total_html);
+                parent_card.find('.cart-item-total').html(product_sub_total_html);
 
-                let rowid = parent_td.data('rowid');
+                let rowid = qty_div.data('rowid');
                 $(".mini-price-" + rowid).html(`{{ $currency_icon }}${new_sub_total_price.toFixed(2)}`);
                 $(".set-mini-input-price-" + rowid).val(new_sub_total_price);
                 update_item_qty(rowid, new_qty);
             });
 
             $(".remove_item").on("click", function () {
-                let parernt_td = $(this).parents('td');
+                let parernt_td = $(this).closest('[data-remove-rowid]');
                 let rowid = parernt_td.data('remove-rowid');
-                let parent_tr = parernt_td.parents('tr');
+                let parent_tr = parernt_td.closest('.cart-item-card');
                 parent_tr.remove();
                 calculate_total();
                 remove_mini_item(rowid);
