@@ -6,6 +6,7 @@ use App\Helpers\MailHelper;
 use App\Mail\OrderSuccessfully;
 use App\Models\DeliveryArea;
 use App\Models\EmailTemplate;
+use App\Models\OrderControl;
 use App\Models\ewayPayment;
 use App\Models\Order;
 use App\Models\OrderAddress;
@@ -28,6 +29,12 @@ class GuestPaymentController extends Controller
 
     public function pickup()
     {
+        $orderControl = OrderControl::first();
+        if ($orderControl && !$orderControl->pickup_enabled) {
+            $notification = array('messege' => $orderControl->pickup_disabled_message ?: 'Pickup is currently unavailable.', 'alert-type' => 'error');
+            return redirect()->route('cart')->with($notification);
+        }
+
         if (Cart::count() == 0) {
             $notification = trans('user_validation.Your cart is empty!');
             $notification = array('messege' => $notification, 'alert-type' => 'error');
@@ -87,6 +94,12 @@ class GuestPaymentController extends Controller
 
     public function delivery()
     {
+        $orderControl = OrderControl::first();
+        if ($orderControl && !$orderControl->delivery_enabled) {
+            $notification = array('messege' => $orderControl->delivery_disabled_message ?: 'Delivery is currently unavailable.', 'alert-type' => 'error');
+            return redirect()->route('cart')->with($notification);
+        }
+
         if (Cart::count() == 0) {
             $notification = trans('user_validation.Your cart is empty!');
             $notification = array('messege' => $notification, 'alert-type' => 'error');

@@ -46,6 +46,7 @@ use App\Models\Footer;
 use App\Models\Homepage;
 use App\Models\OurChef;
 use App\Models\Counter;
+use App\Models\OrderControl;
 use Mail;
 use Str;
 use Session;
@@ -204,6 +205,7 @@ $products = Product::with('category')->where(['status' => 1])->whereIn('id', $cu
         );
 
         $cart_product_ids = collect(Cart::content())->pluck('id')->unique()->values()->all();
+        $orderControl = OrderControl::first() ?? new OrderControl(['pickup_enabled' => 1, 'delivery_enabled' => 1]);
 
         return view('index')->with([
             'seo_setting' => $seo_setting,
@@ -219,7 +221,8 @@ $products = Product::with('category')->where(['status' => 1])->whereIn('id', $cu
             'blog' => $blog,
             'video_section' => $video_section,
             'why_choose_us' => $why_choose_us,
-            'cart_product_ids' => $cart_product_ids
+            'cart_product_ids' => $cart_product_ids,
+            'orderControl' => $orderControl,
         ]);
 
     }

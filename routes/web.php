@@ -52,6 +52,7 @@ use App\Http\Controllers\WEB\Admin\SubscriberController;
 use App\Http\Controllers\WEB\Admin\TermsAndConditionController;
 use App\Http\Controllers\WEB\Admin\TestimonialController;
 use App\Http\Controllers\WEB\Admin\WorkingHoursController;
+use App\Http\Controllers\WEB\Admin\OrderControlController;
 use App\Http\Controllers\WEB\User\AddressCotroller;
 use App\Http\Controllers\WEB\User\PaymentController;
 use App\Http\Controllers\WEB\User\PaypalController;
@@ -382,6 +383,9 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
 
         Route::get('working-hours', [WorkingHoursController::class, 'index'])->name('working-hours');
         Route::put('update-working-hours', [WorkingHoursController::class, 'update'])->name('update-working-hours');
+
+        Route::get('order-control', [OrderControlController::class, 'index'])->name('order-control');
+        Route::put('update-order-control', [OrderControlController::class, 'update'])->name('update-order-control');
 
         Route::resource('coupon', CouponController::class);
         Route::put('coupon-status/{id}', [CouponController::class, 'changeStatus'])->name('coupon-status');

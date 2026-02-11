@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BannerImage;
 use App\Models\BreadcrumbImage;
 use App\Models\Coupon;
+use App\Models\OrderControl;
 use App\Models\Product;
 use Auth;
 use Cart;
@@ -19,7 +20,8 @@ class CartController extends Controller
         $cart_contents = Cart::content();
         Session::forget('coupon_price');
         $cart_banner = BannerImage::where('id', 5)->first();
-        return view('cart')->with(['cart_contents' => $cart_contents, 'cart_banner' => $cart_banner]);
+        $orderControl = OrderControl::first() ?? new OrderControl(['pickup_enabled' => 1, 'delivery_enabled' => 1]);
+        return view('cart')->with(['cart_contents' => $cart_contents, 'cart_banner' => $cart_banner, 'orderControl' => $orderControl]);
     }
 
     public function add_to_cart(Request $request)

@@ -380,15 +380,28 @@
             @endif
         -->
         </div>
-                            <!--  <label style="color: red; font-weight:700">Delivery is unavailable today. You can order through UberEats or DoorDash</label>-->
         <form id="coupon_form">
             <input name="coupon" type="text" placeholder="{{__('Apply Coupon Code Here.')}}">
             <button type="submit">{{__('user.apply')}}</button>
         </form>
-    
-       <a class="common_btn" href="{{ route('pickup') }}">Pick Up</a>
-     
-        <a class="common_btn" href="{{ route('delivery') }}">Delivery</a>
+
+        @if($orderControl->pickup_enabled)
+            <a class="common_btn" href="{{ route('pickup') }}">Pick Up</a>
+        @else
+            <button class="common_btn order-disabled-btn" type="button"
+                data-message="{{ $orderControl->pickup_disabled_message ?: 'Pickup is currently unavailable.' }}">
+                Pick Up
+            </button>
+        @endif
+
+        @if($orderControl->delivery_enabled)
+            <a class="common_btn" href="{{ route('delivery') }}">Delivery</a>
+        @else
+            <button class="common_btn order-disabled-btn" type="button"
+                data-message="{{ $orderControl->delivery_disabled_message ?: 'Delivery is currently unavailable.' }}">
+                Delivery
+            </button>
+        @endif
 
     </div>
 </div>
@@ -399,6 +412,62 @@
             @endif
         </div>
     </section>
+
+    {{-- Order Control Notice Modal --}}
+    @php $anyDisabled = !$orderControl->pickup_enabled || !$orderControl->delivery_enabled; @endphp
+    @if($anyDisabled)
+    <div class="modal fade" id="orderControlModal" tabindex="-1" aria-labelledby="orderControlModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:480px">
+            <div class="modal-content" style="border-radius:16px;border:none;box-shadow:0 20px 60px rgba(0,0,0,0.18);">
+                <div class="modal-header" style="background:#fff7f0;border-bottom:2px solid #ff7c08;border-radius:16px 16px 0 0;padding:20px 24px 16px;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span style="font-size:22px;">⚠️</span>
+                        <h5 class="modal-title mb-0" id="orderControlModalLabel" style="font-size:17px;font-weight:700;color:#cc5500;">Service Notice</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding:24px;">
+                    @if(!$orderControl->pickup_enabled)
+                    <div class="d-flex align-items-start gap-3 mb-3" style="background:#fff3f3;border-radius:10px;padding:14px 16px;border-left:4px solid #e74c3c;">
+                        <span style="font-size:24px;line-height:1;">🏪</span>
+                        <div>
+                            <div style="font-weight:700;color:#c0392b;font-size:14px;margin-bottom:4px;">Pickup Unavailable</div>
+                            <div style="font-size:14px;color:#555;line-height:1.5;">{{ $orderControl->pickup_disabled_message ?: 'Pickup is currently unavailable.' }}</div>
+                        </div>
+                    </div>
+                    @endif
+                    @if(!$orderControl->delivery_enabled)
+                    <div class="d-flex align-items-start gap-3 mb-3" style="background:#fff3f3;border-radius:10px;padding:14px 16px;border-left:4px solid #e74c3c;">
+                        <span style="font-size:24px;line-height:1;">🚗</span>
+                        <div>
+                            <div style="font-weight:700;color:#c0392b;font-size:14px;margin-bottom:4px;">Delivery Unavailable</div>
+                            <div style="font-size:14px;color:#555;line-height:1.5;">{{ $orderControl->delivery_disabled_message ?: 'Delivery is currently unavailable.' }}</div>
+                        </div>
+                    </div>
+                    @endif
+                    @if($orderControl->pickup_enabled || $orderControl->delivery_enabled)
+                    <p style="font-size:13px;color:#777;margin:0;padding-top:4px;">
+                        @if($orderControl->pickup_enabled) ✅ <strong>Pickup</strong> is available. @endif
+                        @if($orderControl->delivery_enabled) ✅ <strong>Delivery</strong> is available. @endif
+                    </p>
+                    @endif
+                </div>
+                <div class="modal-footer" style="border-top:1px solid #f0e0d0;padding:16px 24px;border-radius:0 0 16px 16px;">
+                    <button type="button" class="btn" data-bs-dismiss="modal"
+                        style="background:#ff7c08;color:#fff;font-weight:700;padding:10px 28px;border-radius:8px;border:none;font-size:14px;">
+                        Got it
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function() {
+            var modal = new bootstrap.Modal(document.getElementById('orderControlModal'));
+            modal.show();
+        });
+    </script>
+    @endif
 
         <!-- Bottom Navigation Bar -->
         
@@ -442,6 +511,14 @@
     }
     .tf__add_to_cart {
         margin-top: auto;
+    }
+
+    /* Disabled order button */
+    .order-disabled-btn {
+        opacity: 0.45;
+        cursor: not-allowed;
+        pointer-events: none;
+        filter: grayscale(50%);
     }
 
     /* Bottom Navigation Styles */
