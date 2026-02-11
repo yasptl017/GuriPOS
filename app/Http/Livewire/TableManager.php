@@ -43,6 +43,17 @@ class TableManager extends Component
 
     }
 
+    public function update_payment_method($payment_method)
+    {
+        if (!$this->active_table) return;
+        $meta = $this->active_table->meta;
+        $meta['payment_method'] = $payment_method;
+
+        $this->active_table->meta = $meta;
+
+        $this->active_table->save();
+    }
+
     public function update_customer_id($customer_id)
     {
         if (!$this->active_table) return;
@@ -80,6 +91,7 @@ class TableManager extends Component
                 'order_type' => isset($active_postable->meta['order_type']) ? $active_postable->meta['order_type'] : 'dineIn',
                 'customer_id' => isset($active_postable->meta['customer_id']) ? $active_postable->meta['customer_id'] : 2,
                 'payment_status' => isset($active_postable->meta['payment_status']) ? $active_postable->meta['payment_status'] : 'paid',
+                'payment_method' => isset($active_postable->meta['payment_method']) ? $active_postable->meta['payment_method'] : 'card',
                 'walking_customer_id' => 2
             ]
         ]);

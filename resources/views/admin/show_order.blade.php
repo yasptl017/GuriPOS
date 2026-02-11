@@ -132,6 +132,17 @@
                                                         <br>
                                                         <strong>{{__('admin.Order Type')}}: </strong>
                                                         {{ $order->order_type }}
+                                                        <br>
+                                                        <strong>{{__('admin.Payment Method')}}: </strong>
+                                                        @if($order->payment_method === 'Card')
+                                                            <span class="badge badge-primary"><i class="fas fa-credit-card"></i> Card</span>
+                                                        @elseif($order->payment_method === 'Cash')
+                                                            <span class="badge badge-success"><i class="fas fa-money-bill-wave"></i> Cash</span>
+                                                        @elseif($order->payment_method === 'Unpaid - COD')
+                                                            <span class="badge badge-danger"><i class="fas fa-clock"></i> Unpaid - COD</span>
+                                                        @else
+                                                            <span class="badge badge-secondary">{{ $order->payment_method }}</span>
+                                                        @endif
                                                        <!-- {{__('admin.Status')}} :
                                                         @if ($order->order_status == 1)
                                                             <span

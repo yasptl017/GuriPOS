@@ -395,7 +395,28 @@ style='display: none'
 
 
         $calculate_amount = $this->calculate_amount($request->delivery_fee, $request->coupon_price, $cart_contents);
-        $order_result = $this->orderStore($user, $calculate_amount, 'Cash on Delivery', 'cash_on_delivery', 1, 0, $request->address_id, $request->order_type, $cart_contents);
+
+        // Resolve payment method and status from request
+        $rawMethod = $request->payment_method ?? 'card';
+        if ($rawMethod === 'card') {
+            $payment_method = 'Card';
+            $transaction_id = 'card_pos';
+            $payment_status = 1;
+            $cash_on_delivery = 0;
+        } elseif ($rawMethod === 'cash') {
+            $payment_method = 'Cash';
+            $transaction_id = 'cash_pos';
+            $payment_status = 1;
+            $cash_on_delivery = 1;
+        } else {
+            // unpaid / COD
+            $payment_method = 'Unpaid - COD';
+            $transaction_id = 'cod_pos';
+            $payment_status = 0;
+            $cash_on_delivery = 1;
+        }
+
+        $order_result = $this->orderStore($user, $calculate_amount, $payment_method, $transaction_id, $payment_status, $cash_on_delivery, $request->address_id, $request->order_type, $cart_contents);
 
         //$this->sendOrderSuccessMail($user, $order_result, 'Cash on Delivery', 0);
         $customerDetails = $request->customerDetails ?? "Walking Customer";
@@ -538,6 +559,7 @@ style='display: none'
                 'delivery' => $order['delivery_charge'],
                 'total' => $order['grand_total'],
                 'status' => $active_table->meta['payment_status'] ?? 'paid',
+                'payment_method' => $order['payment_method'] ?? 'Card',
                 'customerDetails' => $customerDetails,
                 'tableNumber' => $active_table->name,
             ];

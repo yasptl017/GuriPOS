@@ -59,7 +59,7 @@ select {
 
 .select2-container .select2-selection--single {
     height: 60px !important;
-   
+
     font-size: 22px !important;
     border: 3px solid #007bff !important;
 }
@@ -107,7 +107,7 @@ select {
 }
 
 .tablePad{
-    padding-top: 16px !important; 
+    padding-top: 16px !important;
     padding-bottom: 16px !important;
 }
 
@@ -127,12 +127,151 @@ select {
         padding: 20px !important;
         font-size: 22px !important;
     }
-    
+
     .select2-search--dropdown .select2-search__field {
         font-size: 20px !important;
         padding: 15px !important;
     }
 }
+
+/* ── POS top controls row ────────────────────────── */
+.pos-top-row {
+    display: flex;
+    gap: 8px;
+    background: #f1f3f5;
+    border-radius: 12px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+}
+.pos-btn-group-wrap {
+    flex: 1;
+}
+.pos-btn-group-wrap label.group-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 4px;
+    display: block;
+}
+.pos-btn-group-wrap + .pos-btn-group-wrap {
+    border-left: 1px solid #dee2e6;
+    padding-left: 8px;
+}
+.pos-btn-row {
+    display: flex;
+    gap: 5px;
+}
+.pos-btn-row .pos-pill { flex: 1; }
+
+.pos-pill {
+    padding: 7px 6px 5px;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #495057;
+    transition: border-color .15s, background .15s, color .15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+.pos-pill i { font-size: 17px; }
+
+.pos-pill:hover { border-color: #adb5bd; background: #f8f9fa; }
+
+/* active variants */
+.pos-pill.active-dinein  { border-color: #6f42c1; background: #6f42c1; color:#fff; }
+.pos-pill.active-pickup  { border-color: #fd7e14; background: #fd7e14; color:#fff; }
+.pos-pill.active-delivery{ border-color: #20c997; background: #20c997; color:#fff; }
+.pos-pill.active-card    { border-color: #007bff; background: #007bff; color:#fff; }
+.pos-pill.active-cash    { border-color: #28a745; background: #28a745; color:#fff; }
+.pos-pill.active-unpaid  { border-color: #dc3545; background: #dc3545; color:#fff; }
+
+/* ── Customer button (opens modal) ───────────────── */
+.customer-trigger-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color .15s;
+    margin-bottom: 6px;
+}
+.customer-trigger-btn:hover { border-color: #007bff; }
+.customer-trigger-btn .cust-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #6c757d; flex-shrink: 0;
+}
+.customer-trigger-btn .cust-avatar.selected {
+    background: #007bff; color: #fff;
+}
+.customer-trigger-btn .cust-info { flex: 1; min-width: 0; }
+.customer-trigger-btn .cust-name {
+    font-size: 14px; font-weight: 600; color: #212529;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.customer-trigger-btn .cust-sub {
+    font-size: 11px; color: #6c757d;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.customer-trigger-btn .cust-chevron { color: #adb5bd; font-size: 14px; }
+
+/* ── Customer modal inner ────────────────────────── */
+#customerModal .modal-dialog { max-width: 540px; }
+.cust-modal-tabs { display: flex; border-bottom: 2px solid #e9ecef; margin-bottom: 16px; }
+.cust-modal-tab {
+    flex: 1; text-align: center; padding: 10px 0;
+    font-size: 13px; font-weight: 600; color: #6c757d;
+    cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px;
+    transition: color .15s, border-color .15s;
+}
+.cust-modal-tab.active { color: #007bff; border-bottom-color: #007bff; }
+.cust-tab-pane { display: none; }
+.cust-tab-pane.active { display: block; }
+
+/* customer search list */
+.cust-search-list { max-height: 280px; overflow-y: auto; margin-top: 8px; }
+.cust-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 8px; cursor: pointer;
+    transition: background .12s;
+}
+.cust-item:hover { background: #f0f7ff; }
+.cust-item.selected { background: #e8f0fe; }
+.cust-item .ci-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #dee2e6; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #495057; flex-shrink: 0;
+    text-transform: uppercase;
+}
+.cust-item .ci-info .ci-name { font-size: 14px; font-weight: 600; color: #212529; }
+.cust-item .ci-info .ci-sub  { font-size: 11px; color: #6c757d; }
+.cust-item .ci-check { margin-left: auto; color: #007bff; display: none; }
+.cust-item.selected .ci-check { display: block; }
+
+/* selected customer detail card inside modal */
+.cust-detail-card {
+    background: #f8f9fa; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px;
+}
+.cust-detail-card .cd-row { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
+.cust-detail-card .cd-label { font-size: 11px; color: #6c757d; font-weight: 600; min-width: 60px; }
+.cust-detail-card .cd-value { font-size: 13px; color: #212529; font-weight: 500; flex: 1; }
     </style>
 
 
@@ -188,86 +327,89 @@ select {
 
                     <div class="col-md-5">
                         <div class="card">
-                            <div class="card-header">
-                                <select name="order_type" id="order_option" class="form-control ">
-                                    <option value="default"
-                                            disabled
-                                            style=" display:none;"
-                                    >{{__('Order Type')}}</option>
+                            <div class="card-header" style="padding: 10px 14px 6px; display: block;">
 
-                                    <option value="DineIn"
-                                            selected
-                                            id="order_type_dine_in"
-                                    >Dine In
-                                    </option>
+                                <!-- Hidden selects for Livewire sync -->
+                                <select id="order_option" style="display:none;">
+                                    <option value="DineIn" selected id="order_type_dine_in">Dine In</option>
                                     <option value="Pickup">Pick up</option>
                                     <option value="Delivery">Delivery</option>
-
                                 </select>
-                                <select name="order_type" id="payment_option" class="form-control" style="margin-left: 5px;">
-                                    <option value="unpaid"
-                                    >Unpaid
-                                    </option>
-
-                                    <option
-                                        selected
-                                        value="paid"
-                                        id="payment_option_paid"
-                                    >
-                                        Paid
-                                    </option>
+                                <select id="payment_option" style="display:none;">
+                                    <option value="unpaid">Unpaid</option>
+                                    <option value="paid" selected id="payment_option_paid">Paid</option>
                                 </select>
-                                <!-- <h5 style="display: flex; align-items:center; gap:0.5rem;" class="w-100">
-                                    <a href="{{ route('admin.pendingorder') }}" class="btn btn-danger"
-                                       style="margin-left: auto;" id="pendingOrderLink">
-                                        Pending Orders: <span id="pendingOrderCount">{{ $pendingOrderCount }}</span>
-                                    </a>
-                                </h5>-->
+                                {{-- Hidden customer select for Livewire customer_id sync --}}
+                                <select id="customer_id" style="display:none;">
+                                    <option value="">Select Customer</option>
+                                    @foreach ($customers as $customer)
+                                        <option value="{{ $customer->id }}"
+                                                id="{{'customer_' . $customer->id}}"
+                                                data-order-count="{{ $customer->orderCount }}"
+                                                data-address="{{ $customer->address }}"
+                                                data-distance="{{ $customer->address_distance }}"
+                                                data-phone="{{ $customer->phone }}"
+                                                data-email="{{ $customer->email ?? '' }}"
+                                        >
+                                            {{ $customer->name }}{{ $customer->phone ? ' - ' . $customer->phone : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                                <!-- ORDER TYPE + PAYMENT METHOD in one row/box -->
+                                <div class="pos-top-row">
+                                    <div class="pos-btn-group-wrap">
+                                        <label class="group-label">Order Type</label>
+                                        <div class="pos-btn-row">
+                                            <button type="button" class="pos-pill active-dinein" id="ot_dinein" onclick="selectOrderType('DineIn')">
+                                                <i class="fas fa-utensils"></i><span>Dine In</span>
+                                            </button>
+                                            <button type="button" class="pos-pill" id="ot_pickup" onclick="selectOrderType('Pickup')">
+                                                <i class="fas fa-shopping-bag"></i><span>Pick Up</span>
+                                            </button>
+                                            <button type="button" class="pos-pill" id="ot_delivery" onclick="selectOrderType('Delivery')">
+                                                <i class="fas fa-motorcycle"></i><span>Delivery</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="pos-btn-group-wrap">
+                                        <label class="group-label">Payment</label>
+                                        <div class="pos-btn-row">
+                                            <button type="button" class="pos-pill active-card" id="pm_card" onclick="selectPaymentMethod('card')">
+                                                <i class="fas fa-credit-card"></i><span>Card</span>
+                                            </button>
+                                            <button type="button" class="pos-pill" id="pm_cash" onclick="selectPaymentMethod('cash')">
+                                                <i class="fas fa-money-bill-wave"></i><span>Cash</span>
+                                            </button>
+                                            <button type="button" class="pos-pill" id="pm_unpaid" onclick="selectPaymentMethod('unpaid')">
+                                                <i class="fas fa-clock"></i><span>Unpaid</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CUSTOMER trigger button -->
+                                <button type="button" class="customer-trigger-btn" id="customerTriggerBtn" data-toggle="modal" data-target="#customerModal">
+                                    <div class="cust-avatar" id="custAvatarIcon"><i class="fas fa-user"></i></div>
+                                    <div class="cust-info">
+                                        <div class="cust-name" id="custDisplayName">Select Customer</div>
+                                        <div class="cust-sub" id="custDisplaySub">Tap to search or add new</div>
+                                    </div>
+                                    <i class="fas fa-chevron-right cust-chevron"></i>
+                                </button>
+
+                                <!-- DISCOUNT inline row -->
+                                <div style="display:flex;align-items:center;gap:8px;background:#f1f3f5;border-radius:10px;padding:7px 12px;">
+                                    <label for="discount" style="font-size:11px;font-weight:700;color:#6c757d;text-transform:uppercase;letter-spacing:.5px;margin:0;white-space:nowrap;">
+                                        <i class="fas fa-tag text-warning mr-1"></i>{{__('admin.Discount')}} (%)
+                                    </label>
+                                    <input type="number" id="discount" class="form-control form-control-sm"
+                                           value="{{ env('DEFAULTS_DISCOUNT') }}" oninput="updateTotal()"
+                                           style="width:80px;border-radius:7px;border:2px solid #ced4da;">
+                                </div>
+
                             </div>
-                            <div class="card-header">
-                                <div class="row w-100">
-                                    <div class="col-md-8">
-                                        <select name="customer_id" id="customer_id" class="form-control select2">
-                                            <option value="">{{__('admin.Select Customer')}}</option>
-                                            @foreach ($customers as $customer)
-                                                <option value="{{ $customer->id }}"
-                                                        id="{{'customer_' . $customer->id}}"
-                                                        data-order-count="{{ $customer->orderCount }}"
-                                                        data-address="{{ $customer->address }}"
-                                                        data-distance="{{ $customer->address_distance }}"
-                                                >
-                                                    {{ $customer->name }}{{ $customer->phone ? ' - ' . $customer->phone : '' }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button data-toggle="modal" data-target="#createNewUser" type="button"
-                                                class="btn btn-primary w-100 tablePad"><i class="fa fa-plus"
-                                                                                 aria-hidden="true"></i>{{__('admin.New')}}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-group" style="margin-bottom: 2px !important;">
-                                    <label for="customer-input">{{__('Customer Details')}}:</label>
-                                    <textarea id="customer-input" class="form-control" value="walking"
-                                              oninput="updateTotal()" rows="4"></textarea>
-                                </div>
-                                <br/>
-                                <div class="row" style="margin-left: 0px !important; margin-bottom:0px !important;">
-                                    <div class="form-group">
-                                        <label for="discount">{{__('admin.Discount')}} (%):</label>
-                                        <input type="number" id="discount" class="form-control"
-                                               value="{{ env('DEFAULTS_DISCOUNT') }}" oninput="updateTotal()">
-                                    </div>
-                                    {{--                                    <div class="form-group" style="margin-left: 5px !important;">--}}
-                                    {{--                                        <label for="delivery">{{__('admin.Delivery')}}:</label>--}}
-                                    {{--                                        <input type="number" id="delivery" class="form-control" value="0"--}}
-                                    {{--                                               oninput="updateTotal()">--}}
-                                    {{--                                    </div>--}}
-                                </div>
+                            <div class="card-body" style="padding-top: 8px;">
                                 <div class="shopping-card-body">
                                     <table class="table">
                                         <thead>
@@ -374,11 +516,13 @@ select {
                                     <input type="hidden" value="0" name="order_type" id="order_type">
                                     <input type="hidden" value="{{ $sub_total }}" name="sub_total" id="order_sub_total">
                                     <input type="hidden" value="walking" name="customerDetails" id="customerInput">
+                                    <textarea id="customer-input" name="_customer_details_display" style="display:none;"></textarea>
                                     <input type="hidden" name="customer_id" id="order_customer_id">
                                     <input type="hidden" name="address_id" id="order_address_id">
                                     <input type="hidden" value="0.00" name="coupon_price" id="coupon_price">
                                     <input type="hidden" value="0.00" name="delivery_fee" id="order_delivery_fee">
                                     <input type="hidden" value="{{ $sub_total }}" name="total_fee" id="order_total_fee">
+                                    <input type="hidden" value="card" name="payment_method" id="order_payment_method">
                                 </form>
                             </div>
                         </div>
@@ -388,49 +532,114 @@ select {
         </section>
     </div>
 
-    <!-- Create new user modal -->
-    <div class="modal fade" id="createNewUser" tabindex="-1" role="dialog" aria-labelledby="modelTitleId"
-         aria-hidden="true">
+    <!-- Customer Modal (search + details + new customer) -->
+    <div class="modal fade" id="customerModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{__('admin.Create new customer')}}</h5>
+                <div class="modal-header" style="padding: 14px 18px 10px;">
+                    <h5 class="modal-title"><i class="fas fa-user-circle text-primary mr-2"></i>Customer</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <div class="">
+                <div class="modal-body" style="padding: 14px 18px;">
+
+                    <!-- Tabs -->
+                    <div class="cust-modal-tabs">
+                        <div class="cust-modal-tab active" id="tabSearchBtn" onclick="switchCustTab('search')">
+                            <i class="fas fa-search mr-1"></i> Find Customer
+                        </div>
+                        <div class="cust-modal-tab" id="tabNewBtn" onclick="switchCustTab('new')">
+                            <i class="fas fa-user-plus mr-1"></i> New Customer
+                        </div>
+                    </div>
+
+                    <!-- SEARCH TAB -->
+                    <div class="cust-tab-pane active" id="custTabSearch">
+                        <!-- selected customer detail card -->
+                        <div class="cust-detail-card" id="custDetailCard" style="display:none;">
+                            <div class="cd-row">
+                                <span class="cd-label"><i class="fas fa-user fa-fw text-primary"></i></span>
+                                <span class="cd-value" id="cd_name"></span>
+                            </div>
+                            <div class="cd-row">
+                                <span class="cd-label"><i class="fas fa-phone fa-fw text-success"></i></span>
+                                <span class="cd-value" id="cd_phone"></span>
+                            </div>
+                            <div class="cd-row" id="cd_email_row">
+                                <span class="cd-label"><i class="fas fa-envelope fa-fw text-warning"></i></span>
+                                <span class="cd-value" id="cd_email"></span>
+                            </div>
+                            <div class="cd-row" id="cd_address_row">
+                                <span class="cd-label"><i class="fas fa-map-marker-alt fa-fw text-danger"></i></span>
+                                <span class="cd-value" id="cd_address"></span>
+                            </div>
+                        </div>
+
+                        <!-- Search input -->
+                        <div style="position:relative; margin-bottom:6px;">
+                            <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#adb5bd;pointer-events:none;"></i>
+                            <input type="text" id="custSearchInput" class="form-control" placeholder="Search by name or phone…"
+                                   style="padding-left:36px; border-radius:8px;" oninput="filterCustomers()">
+                        </div>
+
+                        <!-- Customer list -->
+                        <div class="cust-search-list" id="custSearchList">
+                            @foreach ($customers as $customer)
+                                <div class="cust-item"
+                                     data-id="{{ $customer->id }}"
+                                     data-name="{{ $customer->name }}"
+                                     data-phone="{{ $customer->phone ?? '' }}"
+                                     data-email="{{ $customer->email ?? '' }}"
+                                     data-address="{{ $customer->address ?? '' }}"
+                                     data-distance="{{ $customer->address_distance ?? 0 }}"
+                                     data-ordercount="{{ $customer->orderCount }}"
+                                     onclick="selectCustomerFromModal(this)">
+                                    <div class="ci-avatar">{{ strtoupper(substr($customer->name, 0, 1)) }}</div>
+                                    <div class="ci-info">
+                                        <div class="ci-name">{{ $customer->name }}</div>
+                                        <div class="ci-sub">{{ $customer->phone ?? 'No phone' }}{{ $customer->address ? ' · '.Str::limit($customer->address, 30) : '' }}</div>
+                                    </div>
+                                    <i class="fas fa-check-circle ci-check"></i>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- NEW CUSTOMER TAB -->
+                    <div class="cust-tab-pane" id="custTabNew">
                         <form id="createNewUserForm" method="POST">
                             @csrf
                             <div class="form-group">
-                                <label for="">{{__('admin.Name')}} <span class="text-danger">*</span></label>
-                                <input type="text" name="name" autocomplete="off" class="form-control">
+                                <label>{{__('admin.Name')}} <span class="text-danger">*</span></label>
+                                <input type="text" name="name" autocomplete="off" class="form-control" placeholder="Full name">
                             </div>
-
                             <div class="form-group">
-                                <label for="">{{__('admin.Email')}} <span class="text-danger">*</span></label>
-                                <input type="email" name="email" value="no@email.com" autocomplete="off" class="form-control">
+                                <label>{{__('admin.Phone')}} <span class="text-danger">*</span></label>
+                                <input type="text" name="phone" autocomplete="off" class="form-control" placeholder="Phone number">
                             </div>
-
                             <div class="form-group">
-                                <label for="">{{__('admin.Phone')}} <span class="text-danger">*</span></label>
-                                <input type="text" name="phone" autocomplete="off" class="form-control">
+                                <label>{{__('admin.Email')}}</label>
+                                <input type="email" name="email" value="no@email.com" autocomplete="off" class="form-control" placeholder="Email (optional)">
                             </div>
-
                             <x-address-input>
                                 <div class="form-group">
-                                    <label for="">{{__('admin.Address')}} <span class="text-danger">*</span></label>
-                                    <input type="text" name="address" id="address-input" class="form-control">
+                                    <label>{{__('admin.Address')}} <span class="text-danger">*</span></label>
+                                    <input type="text" name="address" id="address-input" class="form-control" placeholder="Start typing address…">
                                 </div>
                             </x-address-input>
-                            {{--                            <div class="form-group">--}}
-                            {{--                                <label for="">{{__('admin.Address')}} <span class="text-danger">*</span></label>--}}
-                            {{--                                <input type="text" name="address" autocomplete="off" class="form-control">--}}
-                            {{--                            </div>--}}
-                            <button class="btn btn-primary" type="submit">{{__('Save')}}</button>
+                            <button class="btn btn-primary btn-block" type="submit">
+                                <i class="fas fa-user-plus mr-1"></i> {{__('Save Customer')}}
+                            </button>
                         </form>
                     </div>
+
+                </div>
+                <div class="modal-footer" style="padding: 10px 18px;">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="confirmCustomerBtn" onclick="confirmCustomerSelection()" style="display:none;">
+                        <i class="fas fa-check mr-1"></i> Confirm
+                    </button>
                 </div>
             </div>
         </div>
@@ -781,6 +990,138 @@ select {
                 }
             });
         }
+
+        /* ── Order Type ─────────────────────────────── */
+        function selectOrderType(type) {
+            $('#ot_dinein').removeClass('active-dinein');
+            $('#ot_pickup').removeClass('active-pickup');
+            $('#ot_delivery').removeClass('active-delivery');
+
+            if (type === 'DineIn') {
+                $('#ot_dinein').addClass('active-dinein');
+            } else if (type === 'Pickup') {
+                $('#ot_pickup').addClass('active-pickup');
+            } else if (type === 'Delivery') {
+                $('#ot_delivery').addClass('active-delivery');
+            }
+            // sync hidden select for Livewire
+            $('#order_option').val(type).trigger('change');
+        }
+
+        /* ── Payment Method ──────────────────────────── */
+        function selectPaymentMethod(method) {
+            $('#pm_card').removeClass('active-card');
+            $('#pm_cash').removeClass('active-cash');
+            $('#pm_unpaid').removeClass('active-unpaid');
+
+            if (method === 'card') {
+                $('#pm_card').addClass('active-card');
+                $('#order_payment_method').val('card');
+                $('#payment_option').val('paid').trigger('change');
+            } else if (method === 'cash') {
+                $('#pm_cash').addClass('active-cash');
+                $('#order_payment_method').val('cash');
+                $('#payment_option').val('paid').trigger('change');
+            } else if (method === 'unpaid') {
+                $('#pm_unpaid').addClass('active-unpaid');
+                $('#order_payment_method').val('unpaid');
+                $('#payment_option').val('unpaid').trigger('change');
+            }
+            document.dispatchEvent(new CustomEvent('payment-method-changed', { detail: method }));
+        }
+
+        /* ── Customer Modal ──────────────────────────── */
+        var _selectedCustomerId = null;
+
+        function switchCustTab(tab) {
+            if (tab === 'search') {
+                $('#tabSearchBtn').addClass('active');
+                $('#tabNewBtn').removeClass('active');
+                $('#custTabSearch').addClass('active');
+                $('#custTabNew').removeClass('active');
+            } else {
+                $('#tabNewBtn').addClass('active');
+                $('#tabSearchBtn').removeClass('active');
+                $('#custTabNew').addClass('active');
+                $('#custTabSearch').removeClass('active');
+            }
+        }
+
+        function filterCustomers() {
+            var q = $('#custSearchInput').val().toLowerCase();
+            $('#custSearchList .cust-item').each(function () {
+                var name  = $(this).data('name').toLowerCase();
+                var phone = String($(this).data('phone')).toLowerCase();
+                $(this).toggle(name.includes(q) || phone.includes(q));
+            });
+        }
+
+        function selectCustomerFromModal(el) {
+            var $el = $(el);
+            // toggle selection
+            $('.cust-item').removeClass('selected');
+            $el.addClass('selected');
+
+            _selectedCustomerId = $el.data('id');
+            var name    = $el.data('name');
+            var phone   = $el.data('phone') || '';
+            var email   = $el.data('email') || '';
+            var address = $el.data('address') || '';
+
+            // fill detail card
+            $('#cd_name').text(name);
+            $('#cd_phone').text(phone || '—');
+            if (email && email !== 'no@email.com') {
+                $('#cd_email').text(email);
+                $('#cd_email_row').show();
+            } else {
+                $('#cd_email_row').hide();
+            }
+            if (address) {
+                $('#cd_address').text(address);
+                $('#cd_address_row').show();
+            } else {
+                $('#cd_address_row').hide();
+            }
+            $('#custDetailCard').show();
+            $('#confirmCustomerBtn').show();
+        }
+
+        function confirmCustomerSelection() {
+            if (!_selectedCustomerId) return;
+
+            var $opt = $('#customer_id option[value="' + _selectedCustomerId + '"]');
+            var name    = $opt.data ? $opt.text().split(' - ')[0] : '';
+            var phone   = $opt.attr('data-phone') || '';
+            var email   = $opt.attr('data-email') || '';
+            var address = $opt.attr('data-address') || '';
+
+            // update hidden select + trigger Livewire
+            $('#customer_id').val(_selectedCustomerId).trigger('change');
+
+            // update trigger button
+            $('#custAvatarIcon').addClass('selected');
+            $('#custDisplayName').text($('#cd_name').text());
+            var sub = phone || '';
+            if (address) sub += (sub ? ' · ' : '') + address.substring(0, 28) + (address.length > 28 ? '…' : '');
+            $('#custDisplaySub').text(sub || 'Customer selected');
+
+            // update customer details for form submission
+            var details = 'Name: ' + $('#cd_name').text() + '\n';
+            if (phone)   details += 'Phone: ' + phone + '\n';
+            if (address) details += 'Address: ' + address;
+            $('#customer-input').val(details);
+            $('#customerInput').val(details);
+            updateTotal();
+
+            $('#customerModal').modal('hide');
+        }
+
+        // Reset modal state when closed
+        $('#customerModal').on('hidden.bs.modal', function () {
+            $('#custSearchInput').val('');
+            filterCustomers();
+        });
 
         function calculateTotalFee() {
             let order_delivery_fee = $("#order_delivery_fee").val();

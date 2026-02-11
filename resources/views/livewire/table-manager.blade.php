@@ -47,6 +47,7 @@
                 customerDetails += "Address: " + customerAddress;
             }
             $("#customer-input").val(customerDetails);
+            $("#customerInput").val(customerDetails);
         }
 
         function updatePaymentStatusDropdown(status) {
@@ -57,33 +58,56 @@
             }
         }
 
+        function updatePaymentMethodButtons(method) {
+            const m = method || 'card';
+            $('#pm_card').removeClass('active-card');
+            $('#pm_cash').removeClass('active-cash');
+            $('#pm_unpaid').removeClass('active-unpaid');
+            if (m === 'card')        $('#pm_card').addClass('active-card');
+            else if (m === 'cash')   $('#pm_cash').addClass('active-cash');
+            else if (m === 'unpaid') $('#pm_unpaid').addClass('active-unpaid');
+            $('#order_payment_method').val(m);
+        }
+
         function updateOrderOptionDropdown(status) {
-            if (status) {
-                $('#order_option').val(status);
-            } else {
-                $('#order_option').val('DineIn');
-            }
+            const t = status || 'DineIn';
+            $('#order_option').val(t);
+            // sync order type buttons
+            $('#ot_dinein').removeClass('active-dinein');
+            $('#ot_pickup').removeClass('active-pickup');
+            $('#ot_delivery').removeClass('active-delivery');
+            if (t === 'DineIn')        $('#ot_dinein').addClass('active-dinein');
+            else if (t === 'Pickup')   $('#ot_pickup').addClass('active-pickup');
+            else if (t === 'Delivery') $('#ot_delivery').addClass('active-delivery');
         }
 
         function updateCustomerOption(option) {
-
-
-            if (option) {
-                $('#customer_' + option).prop('selected', true);
-                // trigger change event
-                $('#customer_id').trigger('change');
-                updateCustomerID();
-            } else {
-                $('#customer_2').prop('selected', true);
-                // trigger change event
-                $('#customer_id').trigger('change');
-                updateCustomerID();
+            const cid = option || 2;
+            $('#customer_id').val(cid).trigger('change');
+            updateCustomerID();
+            // also update the trigger button display
+            const $opt = $('#customer_' + cid);
+            if ($opt.length) {
+                const parts = $opt.text().trim().split(' - ');
+                const cname = parts[0] || 'Select Customer';
+                const cphone = parts[1] || '';
+                const caddr  = $opt.attr('data-address') || '';
+                $('#custAvatarIcon').addClass('selected');
+                $('#custDisplayName').text(cname);
+                let sub = cphone;
+                if (caddr) sub += (sub ? ' · ' : '') + caddr.substring(0, 28) + (caddr.length > 28 ? '…' : '');
+                $('#custDisplaySub').text(sub || 'Customer selected');
+                // also pre-select in modal list
+                _selectedCustomerId = cid;
+                $('.cust-item').removeClass('selected');
+                $('.cust-item[data-id="' + cid + '"]').addClass('selected');
             }
         }
 
         updatePaymentStatusDropdown(meta['payment_status'])
         updateOrderOptionDropdown(meta['order_type'])
         updateCustomerOption(meta['customer_id'])
+        updatePaymentMethodButtons(meta['payment_method'])
 
 
         window.livewire.on('table-selected', meta => {
@@ -106,7 +130,7 @@
 
             updatePaymentStatusDropdown(meta['payment_status'])
             updateOrderOptionDropdown(meta['order_type'])
-
+            updatePaymentMethodButtons(meta['payment_method'])
 
             updateCustomerOption(meta['customer_id'])
 
@@ -130,6 +154,10 @@
             if (!$(this).val()) return;
             @this.
             update_customer_id($(this).val())
+        })
+
+        document.addEventListener('payment-method-changed', function (e) {
+            @this.update_payment_method(e.detail)
         })
 
 

@@ -145,13 +145,18 @@ class PrinterService
             $output .= str_repeat("-", 42) . "\n";
         }
 
+        if (isset($order->payment_method)) {
+            $output .= sprintf("%-30s %12s\n", "Payment:", $order->payment_method);
+            $output .= str_repeat("-", 42) . "\n";
+        }
+
         if (isset($order->status)) {
             $output .= sprintf("%-1s %12s\n", "Status:", $order->status ? "*** " . Str::upper($order->status) . " ***" : "*** PAID ***");
         } else {
             $output .= "         Web Order\n";
             $output .= sprintf("%-1s %12s\n", "Status:", "*** PAID ***");
         }
-        
+
         $output .= "Thank you!\n";
         return $output;
     }
