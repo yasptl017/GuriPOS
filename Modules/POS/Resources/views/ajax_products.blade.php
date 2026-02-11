@@ -1,6 +1,6 @@
 <div class="row">
     @foreach ($products as $product_index => $product)
-        <div class="col-md-4">
+        <div class="col-6 col-md-4">
             <div class="card produt_card" onclick="load_product_model({{ $product->id }})">
                 <div class="card-body">
                     <h5 class="card-title">{{ $product->name }}</h5>

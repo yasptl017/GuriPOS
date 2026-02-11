@@ -29,29 +29,38 @@ class OrderController extends Controller
         $this->printerService = $printerService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::with('user', 'orderAddress')
-               ->orderBy('id', 'desc')
-               ->where('order_status', 3)
-               ->paginate(50);
+        $ordersQuery = Order::with('user', 'orderAddress')
+            ->orderBy('id', 'desc')
+            ->where('order_status', 3);
+
+        $ordersQuery = $this->applyOrderTypeFilter($ordersQuery, $request->get('order_type'));
+        $orders = $ordersQuery->paginate(50)->appends($request->query());
+
         $title = trans('POS Orders');
         $setting = Setting::first();
         $orderStatus = 3;
-        return view('admin.posorder', compact('orders', 'title', 'orderStatus', 'setting'));
+        $orderTypeFilter = $request->get('order_type', '');
+
+        return view('admin.posorder', compact('orders', 'title', 'orderStatus', 'setting', 'orderTypeFilter'));
     }
 
-    public function webOrder()
+    public function webOrder(Request $request)
     {
-        $orders = Order::with('user', 'orderAddress') // Load the 'orderAddress' relationship
-                     ->orderBy('id', 'desc')
-                     ->where('order_status', 0)
-                     ->paginate(50);
+        $ordersQuery = Order::with('user', 'orderAddress')
+            ->orderBy('id', 'desc')
+            ->where('order_status', 0);
+
+        $ordersQuery = $this->applyOrderTypeFilter($ordersQuery, $request->get('order_type'));
+        $orders = $ordersQuery->paginate(50)->appends($request->query());
+
         $title = trans('Web Orders');
         $setting = Setting::first();
         $orderStatus = 0;
-    
-        return view('admin.order', compact('orders', 'title', 'orderStatus', 'setting'));
+        $orderTypeFilter = $request->get('order_type', '');
+
+        return view('admin.order', compact('orders', 'title', 'orderStatus', 'setting', 'orderTypeFilter'));
     }
     
     
@@ -390,6 +399,25 @@ class OrderController extends Controller
             'total' => $order['grand_total'],
             'customerDetails' => $customerDetails
         ];
+    }
+
+    private function applyOrderTypeFilter($query, $orderType)
+    {
+        if (empty($orderType)) {
+            return $query;
+        }
+
+        $filter = strtolower(trim($orderType));
+
+        if ($filter === 'pickup') {
+            $query->whereRaw('LOWER(order_type) = ?', ['pickup']);
+        } elseif ($filter === 'delivery') {
+            $query->whereRaw('LOWER(order_type) = ?', ['delivery']);
+        } elseif ($filter === 'dine_in') {
+            $query->whereRaw("REPLACE(LOWER(order_type), '-', '') IN ('dinein', 'dine in')");
+        }
+
+        return $query;
     }
 
 

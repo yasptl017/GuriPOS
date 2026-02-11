@@ -16,36 +16,22 @@
                     <div class="breadcrumb-item">{{ $title }}</div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-12"> <!-- Adjust the column width based on your layout -->
-                    <form action="{{ route('admin.orders.export') }}" method="get">
-                        <div class="form-row">
-                            <div class="form-group col-md-3">
-                                <label for="start_date">Start Date:</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date">
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label for="end_date">End Date:</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date">
-                            </div>
-                            <div class="form-group col-md-3" style="display: none">
-                                <label for="order_status">Order Status:</label>
-                                <input type="number" class="form-control" value="{{$orderStatus}}" id="order_status"
-                                       name="order_status">
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label for="export_type">Export As:</label>
-                                <select class="form-control" id="export_type" name="export_type">
-                                    <option value="xlsx">XLSX</option>
-                                    <option value="pdf">PDF</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-3" style="padding-top: 30px;">
-                                <button class="btn btn-primary" type="submit">Export</button>
-                                <button class="btn btn-secondary" type="button" onclick="printTable()">Print</button>
-                            </div>
-                        </div>
-                    </form>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <ul class="nav nav-pills">
+                        <li class="nav-item mr-2">
+                            <a class="nav-link {{ $orderTypeFilter === '' ? 'active' : '' }}" href="{{ route('admin.all-order') }}">All</a>
+                        </li>
+                        <li class="nav-item mr-2">
+                            <a class="nav-link {{ $orderTypeFilter === 'pickup' ? 'active' : '' }}" href="{{ route('admin.all-order', ['order_type' => 'pickup']) }}">Pickup</a>
+                        </li>
+                        <li class="nav-item mr-2">
+                            <a class="nav-link {{ $orderTypeFilter === 'delivery' ? 'active' : '' }}" href="{{ route('admin.all-order', ['order_type' => 'delivery']) }}">Delivery</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ $orderTypeFilter === 'dine_in' ? 'active' : '' }}" href="{{ route('admin.all-order', ['order_type' => 'dine_in']) }}">Dine-in</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
@@ -109,7 +95,7 @@
                                                 <td><span class="badge badge-success">{{ $order->order_type }}</span>
                                                 </td>
                                                 <td>
-                                                    <a href="{{ route('admin.order-show', $order->id) }}"
+                                                    <a href="{{ route('admin.order-show', ['id' => $order->id, 'source' => 'pos']) }}"
                                                        class="btn btn-primary btn-sm">
                                                         <i class="fa fa-eye" aria-hidden="true"></i>
                                                     </a>
@@ -206,17 +192,6 @@
     <script>
         function deleteData(id) {
             $("#deleteForm").attr("action", '{{ url("admin/delete-order/") }}' + "/" + id)
-        }
-
-        function printTable() {
-            var printContents = document.getElementById('printableTable').innerHTML;
-            var originalContents = document.body.innerHTML;
-
-            document.body.innerHTML = printContents;
-
-            window.print();
-
-            document.body.innerHTML = originalContents;
         }
     </script>
 @endsection

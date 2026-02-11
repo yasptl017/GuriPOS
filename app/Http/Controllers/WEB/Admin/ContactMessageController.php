@@ -11,6 +11,8 @@ use App\Models\Category;
 use App\Models\ProductGallery;
 use App\Models\OrderProduct;
 use App\Models\ProductReview;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 class ContactMessageController extends Controller
 {
     public function __construct()
@@ -18,68 +20,69 @@ class ContactMessageController extends Controller
         $this->middleware('auth:admin');
     }
 
-    public function review()
+    public function review(Request $request)
     {
-        $products = Product::all();
-
-        $orderProducts = OrderProduct::all();
-
-        // Initialize an empty array to store product counts
-        $productCounts = [];
-
-        // Count occurrences of each product
-        foreach ($orderProducts as $orderProduct) {
-            $productId = $orderProduct->product_id;
-
-            if (array_key_exists($productId, $productCounts)) {
-                $productCounts[$productId]++;
-            } else {
-                $productCounts[$productId] = 1;
-            }
+        $period = $request->get('period', 'week');
+        if (!in_array($period, ['week', 'month', 'overall'], true)) {
+            $period = 'week';
         }
 
-        // Populate counts for all products, including those not ordered
-        foreach ($products as $product) {
-            $productId = $product->id;
-
-            if (!array_key_exists($productId, $productCounts)) {
-                $productCounts[$productId] = 0;
-            }
+        $categoryId = $request->filled('category_id') ? (int) $request->get('category_id') : null;
+        $fromDate = null;
+        if ($period === 'week') {
+            $fromDate = Carbon::now()->subDays(7);
+        } elseif ($period === 'month') {
+            $fromDate = Carbon::now()->subDays(30);
         }
 
-        // Sort products based on their count
-        arsort($productCounts);
+        $rankingQuery = DB::table('order_products')
+            ->join('products', 'products.id', '=', 'order_products.product_id')
+            ->join('categories', 'categories.id', '=', 'products.category_id')
+            ->leftJoin('orders', 'orders.id', '=', 'order_products.order_id')
+            ->select(
+                'products.id',
+                'products.name',
+                'products.price',
+                'categories.name as category_name',
+                DB::raw('SUM(COALESCE(order_products.qty, 1)) as total_qty'),
+                DB::raw('COUNT(order_products.id) as total_orders')
+            );
 
-        // Extract top 5 most ordered products
-        $top5 = array_slice($productCounts, 0, 5, true);
-
-        // Extract bottom 5 least ordered products
-        $bottom5 = array_slice($productCounts, -5, 5, true);
-
-        // Now you can fetch the details of these products from the Product model
-        $mostOrderedProducts = Product::whereIn('id', array_keys($top5))->get();
-        $leastOrderedProducts = Product::whereIn('id', array_keys($bottom5))->get();
-        
-        foreach ($mostOrderedProducts as $product) {
-            $productId = $product->id;
-            $product->count = isset($top5[$productId]) ? $top5[$productId] : 0;
-        }
-        
-        // Add count attribute to least ordered products
-        foreach ($leastOrderedProducts as $product) {
-            $productId = $product->id;
-            $product->count = isset($bottom5[$productId]) ? $bottom5[$productId] : 0;
+        if (!empty($categoryId)) {
+            $rankingQuery->where('products.category_id', $categoryId);
         }
 
-        $mostOrderedProducts = $mostOrderedProducts->sortByDesc('count');
+        if ($fromDate) {
+            $rankingQuery->where(function ($query) use ($fromDate) {
+                $query->where('orders.created_at', '>=', $fromDate)
+                    ->orWhere(function ($subQuery) use ($fromDate) {
+                        $subQuery->whereNull('order_products.order_id')
+                            ->where('order_products.created_at', '>=', $fromDate);
+                    });
+            });
+        }
 
-        $leastOrderedProducts = $leastOrderedProducts->sortBy('count');
+        $topOrderedProducts = $rankingQuery
+            ->groupBy('products.id', 'products.name', 'products.price', 'categories.name')
+            ->orderByDesc('total_qty')
+            ->orderByDesc('total_orders')
+            ->limit(30)
+            ->get();
+
+        $categories = Category::where('status', 1)->orderBy('name')->get();
 
         $setting = Setting::first();
         $frontend_url = $setting->frontend_url;
         $frontend_view = $frontend_url.'single-product?slug=';
 
-        return view('admin.review',compact('leastOrderedProducts','mostOrderedProducts','setting','frontend_view'));
+        return view('admin.review', compact(
+            'topOrderedProducts',
+            'categories',
+            'categoryId',
+            'period',
+            'setting',
+            'frontend_view'
+        ));
     }
 
     public function index(){

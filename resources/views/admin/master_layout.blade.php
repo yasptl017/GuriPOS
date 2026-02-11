@@ -30,6 +30,13 @@
           </ul>
         </div>
         <ul class="navbar-nav navbar-right">
+          <li class="nav-item">
+            <a href="javascript:;" class="nav-link nav-link-lg fullscreen-toggle-btn" id="fullscreenToggleBtn" title="Toggle Fullscreen">
+                <span class="fullscreen-icon-bg">
+                    <i class="fas fa-expand" id="fullscreenToggleIcon"></i>
+                </span>
+            </a>
+          </li>
           <li class="nav-item reservation-nav-item">
             <a href="javascript:;" class="nav-link nav-link-lg reservation-notification-trigger" id="reservationNotificationTrigger" title="Reservations">
                 <span class="reservation-icon-bg">
@@ -129,6 +136,23 @@
   </div>
 
   <style>
+      .fullscreen-toggle-btn {
+          padding: 8px 10px !important;
+      }
+
+      .fullscreen-icon-bg {
+          width: 38px;
+          height: 38px;
+          border-radius: 11px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #0f766e;
+          background: linear-gradient(135deg, #e9fffb 0%, #cffcf4 100%);
+          border: 1px solid #a7f3e9;
+          box-shadow: 0 6px 18px rgba(15, 118, 110, 0.16);
+      }
+
       .reservation-notification-trigger {
           position: relative;
           display: inline-flex;
@@ -368,6 +392,46 @@
               });
           }
 
+          function isFullscreenActive() {
+              return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+          }
+
+          function updateFullscreenIcon() {
+              var $icon = $('#fullscreenToggleIcon');
+              if (isFullscreenActive()) {
+                  $icon.removeClass('fa-expand').addClass('fa-compress');
+              } else {
+                  $icon.removeClass('fa-compress').addClass('fa-expand');
+              }
+          }
+
+          function requestFullscreen() {
+              var docEl = document.documentElement;
+              if (docEl.requestFullscreen) {
+                  return docEl.requestFullscreen();
+              }
+              if (docEl.webkitRequestFullscreen) {
+                  return docEl.webkitRequestFullscreen();
+              }
+              if (docEl.msRequestFullscreen) {
+                  return docEl.msRequestFullscreen();
+              }
+              return Promise.reject();
+          }
+
+          function exitFullscreen() {
+              if (document.exitFullscreen) {
+                  return document.exitFullscreen();
+              }
+              if (document.webkitExitFullscreen) {
+                  return document.webkitExitFullscreen();
+              }
+              if (document.msExitFullscreen) {
+                  return document.msExitFullscreen();
+              }
+              return Promise.reject();
+          }
+
           $(document).ready(function() {
               $(document).one('click keydown touchstart', function() {
                   hasInteracted = true;
@@ -382,6 +446,22 @@
                   loadPopupReservations();
                   markViewed();
               });
+
+              $('#fullscreenToggleBtn').on('click', function () {
+                  if (isFullscreenActive()) {
+                      exitFullscreen().catch(function () {});
+                  } else {
+                      requestFullscreen().catch(function () {
+                          toastr.info('Fullscreen is not available in this browser.');
+                      });
+                  }
+              });
+
+              $(document).on('fullscreenchange webkitfullscreenchange msfullscreenchange', function () {
+                  updateFullscreenIcon();
+              });
+
+              updateFullscreenIcon();
 
               setInterval(refreshNotifications, 15000);
           });

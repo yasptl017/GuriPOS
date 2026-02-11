@@ -169,7 +169,7 @@
 <style>
     .table-cover {
         display: grid;
-        grid-template-columns: repeat(13, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
         grid-gap: 5px;
         padding: 5px;
     }

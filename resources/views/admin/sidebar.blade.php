@@ -19,13 +19,13 @@
 
           <li class="{{ Route::is('admin.review') || Route::is('admin.review') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.review') }}"><i class="fas fa-fa fa-envelope"></i> <span>Top Products</span></a></li>
 
-          <li class="nav-item dropdown {{ Route::is('admin.all-order') || Route::is('admin.order-show') || Route::is('admin.pending-order') || Route::is('admin.pregress-order') || Route::is('admin.delivered-order') ||  Route::is('admin.completed-order') || Route::is('admin.declined-order') || Route::is('admin.cash-on-delivery')  ? 'active' : '' }}">
+          <li class="nav-item dropdown {{ Route::is('admin.all-order') || Route::is('admin.web-order') || Route::is('admin.order-show') || Route::is('admin.pending-order') || Route::is('admin.pregress-order') || Route::is('admin.delivered-order') ||  Route::is('admin.completed-order') || Route::is('admin.declined-order') || Route::is('admin.cash-on-delivery')  ? 'active' : '' }}">
             <a href="#" class="nav-link has-dropdown"><i class="fas fa-shopping-cart"></i><span>{{__('admin.Orders')}}</span></a>
             <ul class="dropdown-menu">
 
-              <li class="{{ Route::is('admin.all-order') || Route::is('admin.order-show') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.all-order') }}">{{__('admin.POS Orders')}}</a></li>
+              <li class="{{ Route::is('admin.all-order') || (Route::is('admin.order-show') && request('source') !== 'web') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.all-order') }}">{{__('admin.POS Orders')}}</a></li>
 
-              <li class="{{ Route::is('admin.web-order') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.web-order') }}">{{__('admin.Web Orders')}}</a></li>
+              <li class="{{ Route::is('admin.web-order') || (Route::is('admin.order-show') && request('source') === 'web') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.web-order') }}">{{__('admin.Web Orders')}}</a></li>
 
              <!-- <li class="{{ Route::is('admin.pregress-order') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.pregress-order') }}">{{__('admin.Progress Orders')}}</a></li>
 

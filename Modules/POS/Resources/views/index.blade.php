@@ -272,6 +272,59 @@ select {
 .cust-detail-card .cd-row { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
 .cust-detail-card .cd-label { font-size: 11px; color: #6c757d; font-weight: 600; min-width: 60px; }
 .cust-detail-card .cd-value { font-size: 13px; color: #212529; font-weight: 500; flex: 1; }
+
+/* ── Mobile optimizations ────────────────────────── */
+@media (max-width: 767px) {
+    /* Stack product list and cart vertically */
+    .col-md-7, .col-md-5 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+
+    /* Reduce card padding on mobile */
+    .card-body { padding: 8px !important; }
+
+    /* Order type + payment: stack vertically inside the box */
+    .pos-top-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .pos-btn-group-wrap + .pos-btn-group-wrap {
+        border-left: none;
+        border-top: 1px solid #dee2e6;
+        padding-left: 0;
+        padding-top: 8px;
+    }
+
+    /* Make pill buttons bigger for touch */
+    .pos-pill {
+        padding: 10px 6px 8px;
+        font-size: 12px;
+    }
+    .pos-pill i { font-size: 18px; }
+
+    /* Customer button larger touch target */
+    .customer-trigger-btn {
+        padding: 12px 14px;
+    }
+
+    /* Product search form: stack on mobile */
+    #product_search_form .row > div {
+        margin-bottom: 6px;
+    }
+
+    /* Pagination: smaller buttons */
+    .pagination .page-link {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+
+    /* Cart table font tweaks */
+    .table td, .table th { font-size: 12px; }
+}
     </style>
 
 
