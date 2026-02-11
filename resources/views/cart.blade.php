@@ -557,22 +557,79 @@
         padding-bottom: 70px;
     }
 </style>
+    @php
+        $todayName = now()->format('l');
+        $todayWorkingHour = \App\Models\WorkingHour::where('day', $todayName)->first();
+        $workingHourPayload = [
+            'day' => $todayName,
+            'exists' => (bool) $todayWorkingHour,
+            'is_closed' => (bool) optional($todayWorkingHour)->is_closed,
+            'start_time' => optional($todayWorkingHour)->start_time,
+            'end_time' => optional($todayWorkingHour)->end_time,
+        ];
+    @endphp
     <script>
         $(document).ready(function () {
-            $(document).ready(function () {
-                $('.common_btn').click(function (event) {
-                    var now = new Date();
-                    var openingTime = new Date();
-                    openingTime.setHours(16, 30, 0); // 4:30 PM
-                    var closingTime = new Date();
-                    closingTime.setHours(22, 0, 0); // 10:00 PM
+            const todayWorkingHour = @json($workingHourPayload);
 
-                    // Uncomment this block if you want to enforce opening hours
-                 if (now < openingTime || now > closingTime) {
-                  toastr.warning('Our restaurant is open from 4:30 PM to 10:00 PM.');
-                  event.preventDefault();
-                  }
-                });
+            function parseTimeToDate(timeValue) {
+                if (!timeValue || typeof timeValue !== 'string') {
+                    return null;
+                }
+                const parts = timeValue.split(':');
+                if (parts.length < 2) {
+                    return null;
+                }
+                const date = new Date();
+                date.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+                return date;
+            }
+
+            function formatTimeTo12Hour(timeValue) {
+                if (!timeValue || typeof timeValue !== 'string') {
+                    return '';
+                }
+                const parts = timeValue.split(':');
+                if (parts.length < 2) {
+                    return timeValue;
+                }
+                let hours = parseInt(parts[0], 10);
+                const minutes = parts[1];
+                const suffix = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                if (hours === 0) {
+                    hours = 12;
+                }
+                return `${hours}:${minutes} ${suffix}`;
+            }
+
+            $('.common_btn').on('click', function (event) {
+                if (!todayWorkingHour.exists) {
+                    return;
+                }
+
+                if (todayWorkingHour.is_closed) {
+                    toastr.warning(`We are closed today (${todayWorkingHour.day}).`);
+                    event.preventDefault();
+                    return;
+                }
+
+                const openingTime = parseTimeToDate(todayWorkingHour.start_time);
+                const closingTime = parseTimeToDate(todayWorkingHour.end_time);
+
+                if (!openingTime || !closingTime) {
+                    toastr.warning('Ordering is currently unavailable. Please contact support.');
+                    event.preventDefault();
+                    return;
+                }
+
+                const now = new Date();
+                if (now < openingTime || now > closingTime) {
+                    const openLabel = formatTimeTo12Hour(todayWorkingHour.start_time);
+                    const closeLabel = formatTimeTo12Hour(todayWorkingHour.end_time);
+                    toastr.warning(`Our restaurant is open from ${openLabel} to ${closeLabel}.`);
+                    event.preventDefault();
+                }
             });
             $("#coupon_form").on("submit", function (e) {
     e.preventDefault();
