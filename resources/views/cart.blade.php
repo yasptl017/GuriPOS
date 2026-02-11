@@ -87,17 +87,47 @@
     }
 
     .cart-cards-header .clear_all {
-        font-size: 13px;
-        color: #e74c3c;
-        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid #fecaca;
+        background: #fff1f2;
+        color: #b42318;
+        font-size: 12px;
+        font-weight: 700;
         text-decoration: none;
-        text-transform: none;
-        letter-spacing: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
 
     .cart-cards-header .clear_all:hover {
-        color: #c0392b;
-        text-decoration: underline;
+        background: #ffe4e6;
+        color: #912018;
+    }
+
+    .clear-all-mobile-wrap {
+        display: none;
+        margin-bottom: 12px;
+    }
+
+    .clear-all-mobile-wrap .clear_all {
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 1px solid #fecaca;
+        background: #fff1f2;
+        color: #b42318;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
 
     .cart-cards-wrapper {
@@ -143,6 +173,10 @@
 
     .cart-item-name:hover {
         color: #ff7c08;
+    }
+
+    .cart-item-name .product-price-inline {
+        white-space: nowrap;
     }
 
     .cart-item-unit-price {
@@ -192,6 +226,14 @@
     }
 
     @media (max-width: 576px) {
+        .cart-cards-header .clear_all {
+            display: none;
+        }
+
+        .clear-all-mobile-wrap {
+            display: block;
+        }
+
         .cart-item-card {
             flex-direction: column;
             align-items: flex-start;
@@ -224,6 +266,9 @@
                                 <span>{{__('user.details')}}</span>
                                 <a class="clear_all" href="javascript:">{{__('user.clear all')}}</a>
                             </div>
+                            <div class="clear-all-mobile-wrap">
+                                <a class="clear_all" href="javascript:">{{__('user.clear all')}}</a>
+                            </div>
 
                             @php
                                 $sub_total = 0;
@@ -239,8 +284,7 @@
                                 @endphp
                                 <div class="cart-item-card main-cart-item-{{ $cart_content->rowId }}">
                                     <div class="cart-item-info">
-                                        <a class="cart-item-name" href="{{ route('show-product', $cart_content->options->slug) }}">{{ $cart_content->name }}</a>
-                                        <span class="cart-item-unit-price">{{ $currency_icon }}{{ number_format($cart_content->price, 2) }}</span>
+                                        <a class="cart-item-name" href="{{ route('show-product', $cart_content->options->slug) }}">{{ $cart_content->name }} <span class="product-price-inline">- {{ $currency_icon }}{{ number_format($cart_content->price, 2) }}</span></a>
                                         @if($cart_content->options->size)
                                             <span class="cart-item-size">{{ $cart_content->options->size }}</span>
                                         @endif
