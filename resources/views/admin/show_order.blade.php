@@ -333,6 +333,9 @@
                             <button class="btn btn-info btn-icon icon-left" onclick="viewReceipt({{ $order->id }})">
                                 <i class="fas fa-receipt"></i> View Receipt
                             </button>
+                            <a href="{{ route('admin.order-receipt-pdf', $order->id) }}" class="btn btn-primary btn-icon icon-left">
+                                <i class="fas fa-file-pdf"></i> Save Receipt PDF
+                            </a>
 
                             <button class="btn btn-danger btn-icon icon-left" data-toggle="modal"
                                     data-target="#deleteModal" onclick="deleteData({{ $order->id }})"><i
@@ -385,6 +388,9 @@
                     <button type="button" class="btn btn-primary" onclick="browserPrintReceipt()">
                         <i class="fas fa-print mr-1"></i> Print (Browser)
                     </button>
+                    <a href="{{ route('admin.order-receipt-pdf', $order->id) }}" class="btn btn-danger">
+                        <i class="fas fa-file-pdf mr-1"></i> Save PDF
+                    </a>
                 </div>
             </div>
         </div>

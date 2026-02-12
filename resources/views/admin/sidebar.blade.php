@@ -161,7 +161,18 @@
             <li class="{{ Route::is('admin.admin.index') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.admin.index') }}"><i class="fas fa-user"></i> <span>{{__('admin.Admin list')}}</span></a></li>
           @endif
 
+          <li>
+            <a class="nav-link text-danger" href="{{ route('admin.logout') }}"
+               onclick="event.preventDefault(); document.getElementById('admin-sidebar-logout-form').submit();">
+               <i class="fas fa-sign-out-alt"></i> <span>{{ __('admin.Logout') }}</span>
+            </a>
+          </li>
+
         </ul>
+
+        <form id="admin-sidebar-logout-form" action="{{ route('admin.logout') }}" method="POST" class="d-none">
+          @csrf
+        </form>
     </aside>
 
   </div>

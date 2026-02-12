@@ -387,6 +387,64 @@ class OrderController extends Controller
         return response()->json(['receipt' => $order->print_receipt]);
     }
 
+    public function downloadReceiptPdf($id)
+    {
+        $order = Order::find($id);
+        if (!$order) {
+            abort(404, 'Order not found');
+        }
+
+        if (empty($order->print_receipt)) {
+            try {
+                $orderDetails = $this->getOrderDetails($id);
+                $order->print_receipt = $this->printerService->getFormattedReceipt($orderDetails);
+                $order->save();
+            } catch (Exception $e) {
+                $order->print_receipt = 'Order #' . $order->order_id . "\n"
+                    . 'Date: ' . optional($order->created_at)->format('d M Y h:i A') . "\n"
+                    . 'Type: ' . ($order->order_type ?: 'N/A') . "\n"
+                    . 'Payment: ' . ($order->payment_method ?: 'N/A') . "\n"
+                    . 'Total: ' . $order->grand_total;
+            }
+        }
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $pdf = new Dompdf($options);
+
+        $receiptText = e($order->print_receipt ?: 'No receipt data available.');
+        $html = '
+            <!doctype html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>Receipt #' . e($order->order_id) . '</title>
+                <style>
+                    body { font-family: "Courier New", monospace; font-size: 11px; margin: 12px; color: #111827; }
+                    .receipt-wrap {
+                        margin: 0;
+                        white-space: pre;
+                        line-height: 1.35;
+                    }
+                </style>
+            </head>
+            <body>
+                <pre class="receipt-wrap">' . $receiptText . '</pre>
+            </body>
+            </html>
+        ';
+
+        $pdf->loadHtml($html);
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->render();
+
+        $fileName = 'receipt-' . $order->order_id . '.pdf';
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, $fileName);
+    }
+
     private function getOrderDetails($id)
     {
         $order = Order::with('orderProducts', 'orderAddress')->find($id);

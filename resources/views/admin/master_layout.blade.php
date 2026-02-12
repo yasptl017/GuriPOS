@@ -30,14 +30,35 @@
           </ul>
         </div>
         <ul class="navbar-nav navbar-right">
-          <li class="nav-item">
+          <li class="nav-item nav-mobile-show">
+            <a href="{{ route('admin.pos') }}" class="nav-link nav-link-lg top-quick-action" title="POS">
+                <span class="quick-action-icon-bg quick-action-pos-bg">
+                    <i class="fas fa-desktop"></i>
+                </span>
+            </a>
+          </li>
+          <li class="nav-item nav-mobile-hide">
+            <a href="{{ route('admin.report.daily') }}" class="nav-link nav-link-lg top-quick-action" title="Reports">
+                <span class="quick-action-icon-bg quick-action-report-bg">
+                    <i class="fas fa-chart-line"></i>
+                </span>
+            </a>
+          </li>
+          <li class="nav-item nav-mobile-show">
+            <a href="{{ route('admin.order-control') }}" class="nav-link nav-link-lg top-quick-action" title="Order Control">
+                <span class="quick-action-icon-bg quick-action-order-control-bg">
+                    <i class="fas fa-sliders-h"></i>
+                </span>
+            </a>
+          </li>
+          <li class="nav-item nav-mobile-hide">
             <a href="javascript:;" class="nav-link nav-link-lg fullscreen-toggle-btn" id="fullscreenToggleBtn" title="Toggle Fullscreen">
                 <span class="fullscreen-icon-bg">
                     <i class="fas fa-expand" id="fullscreenToggleIcon"></i>
                 </span>
             </a>
           </li>
-          <li class="nav-item reservation-nav-item">
+          <li class="nav-item reservation-nav-item nav-mobile-hide">
             <a href="javascript:;" class="nav-link nav-link-lg reservation-notification-trigger" id="reservationNotificationTrigger" title="Reservations">
                 <span class="reservation-icon-bg">
                     <i class="far fa-calendar-alt"></i>
@@ -53,12 +74,19 @@
               $header_admin=Auth::guard('admin')->user();
               $defaultProfile = App\Models\BannerImage::whereId('15')->first();
           @endphp
-          <li class="dropdown"><a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+          <li class="dropdown nav-mobile-hide">
+            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user admin-profile-trigger">
               @if ($header_admin->image)
-              <img alt="image" src="{{ asset($header_admin->image) }}" class="rounded-circle mr-1">
+              <span class="admin-profile-avatar-wrap">
+                <img alt="image" src="{{ asset($header_admin->image) }}" class="rounded-circle admin-profile-avatar">
+              </span>
               @else
-              <img alt="image" src="{{ asset($defaultProfile->image) }}" class="rounded-circle mr-1">
+              <span class="admin-profile-avatar-wrap">
+                <img alt="image" src="{{ asset($defaultProfile->image) }}" class="rounded-circle admin-profile-avatar">
+              </span>
               @endif
+              <span class="admin-profile-caret"><i class="fas fa-chevron-down"></i></span>
+            </a>
     
             <div class="dropdown-menu dropdown-menu-right">
 
@@ -136,6 +164,46 @@
   </div>
 
   <style>
+      .top-quick-action {
+          padding: 8px 10px !important;
+      }
+
+      .quick-action-icon-bg {
+          width: 38px;
+          height: 38px;
+          border-radius: 11px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid transparent;
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      .top-quick-action:hover .quick-action-icon-bg {
+          transform: translateY(-1px);
+      }
+
+      .quick-action-pos-bg {
+          color: #1d4ed8;
+          background: linear-gradient(135deg, #e9f1ff 0%, #dbeafe 100%);
+          border-color: #bfdbfe;
+          box-shadow: 0 6px 18px rgba(37, 99, 235, 0.16);
+      }
+
+      .quick-action-report-bg {
+          color: #7c3aed;
+          background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+          border-color: #ddd6fe;
+          box-shadow: 0 6px 18px rgba(109, 40, 217, 0.16);
+      }
+
+      .quick-action-order-control-bg {
+          color: #be123c;
+          background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+          border-color: #fecdd3;
+          box-shadow: 0 6px 18px rgba(190, 24, 93, 0.16);
+      }
+
       .fullscreen-toggle-btn {
           padding: 8px 10px !important;
       }
@@ -254,6 +322,51 @@
           font-size: 13px;
           color: #6b7280;
           margin-top: 3px;
+      }
+
+      .admin-profile-trigger {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 10px !important;
+          border-radius: 999px;
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 5px 15px rgba(15, 23, 42, 0.08);
+      }
+
+      .admin-profile-avatar-wrap {
+          width: 38px;
+          height: 38px;
+          padding: 2px;
+          border-radius: 999px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+      }
+
+      .admin-profile-avatar {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border: 2px solid #fff;
+      }
+
+      .admin-profile-caret {
+          font-size: 11px;
+          color: #6b7280;
+          margin-right: 2px;
+      }
+
+      .admin-profile-trigger::after {
+          display: none !important;
+      }
+
+      @media (max-width: 767.98px) {
+          .nav-mobile-hide {
+              display: none !important;
+          }
       }
   </style>
 

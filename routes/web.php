@@ -347,6 +347,7 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::put('update-order-status/{id}', [OrderController::class, 'updateOrderStatus'])->name('update-order-status');
         Route::post('order-print/{id}', [OrderController::class, 'printOrder'])->name('order-print');
         Route::get('order-receipt/{id}', [OrderController::class, 'viewReceipt'])->name('order-receipt');
+        Route::get('order-receipt-pdf/{id}', [OrderController::class, 'downloadReceiptPdf'])->name('order-receipt-pdf');
         Route::get('orders/export', [OrderController::class, 'export'])->name('orders.export');
 
         // Reports
