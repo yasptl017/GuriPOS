@@ -47,6 +47,7 @@ use App\Http\Controllers\WEB\Admin\TermsAndConditionController;
 use App\Http\Controllers\WEB\Admin\TestimonialController;
 use App\Http\Controllers\WEB\Admin\WorkingHoursController;
 use App\Http\Controllers\WEB\Admin\OrderControlController;
+use App\Http\Controllers\WEB\Admin\ReportController;
 use App\Http\Controllers\WEB\User\AddressCotroller;
 use App\Http\Controllers\WEB\User\PaymentController;
 use App\Http\Controllers\WEB\User\PaypalController;
@@ -347,6 +348,11 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::post('order-print/{id}', [OrderController::class, 'printOrder'])->name('order-print');
         Route::get('order-receipt/{id}', [OrderController::class, 'viewReceipt'])->name('order-receipt');
         Route::get('orders/export', [OrderController::class, 'export'])->name('orders.export');
+
+        // Reports
+        Route::get('reports/daily',   [ReportController::class, 'daily'])->name('report.daily');
+        Route::get('reports/monthly', [ReportController::class, 'monthly'])->name('report.monthly');
+        Route::get('reports/range',   [ReportController::class, 'range'])->name('report.range');
 
         Route::get('reservation', [OrderController::class, 'reservation'])->name('reservation');
         Route::get('reservation-notifications', [OrderController::class, 'reservationNotifications'])->name('reservation-notifications');

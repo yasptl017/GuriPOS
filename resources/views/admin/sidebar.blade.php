@@ -19,6 +19,21 @@
 
           <li class="{{ Route::is('admin.review') || Route::is('admin.review') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.review') }}"><i class="fas fa-fa fa-envelope"></i> <span>Top Products</span></a></li>
 
+          <li class="nav-item dropdown {{ Route::is('admin.report.*') ? 'active' : '' }}">
+            <a href="#" class="nav-link has-dropdown"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+            <ul class="dropdown-menu">
+              <li class="{{ Route::is('admin.report.daily') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.report.daily') }}"><i class="fas fa-calendar-day mr-1"></i>Daily Report</a>
+              </li>
+              <li class="{{ Route::is('admin.report.monthly') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.report.monthly') }}"><i class="fas fa-calendar-alt mr-1"></i>Monthly Report</a>
+              </li>
+              <li class="{{ Route::is('admin.report.range') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.report.range') }}"><i class="fas fa-calendar-week mr-1"></i>Date Range Report</a>
+              </li>
+            </ul>
+          </li>
+
           <li class="nav-item dropdown {{ Route::is('admin.all-order') || Route::is('admin.web-order') || Route::is('admin.order-show') || Route::is('admin.pending-order') || Route::is('admin.pregress-order') || Route::is('admin.delivered-order') ||  Route::is('admin.completed-order') || Route::is('admin.declined-order') || Route::is('admin.cash-on-delivery')  ? 'active' : '' }}">
             <a href="#" class="nav-link has-dropdown"><i class="fas fa-shopping-cart"></i><span>{{__('admin.Orders')}}</span></a>
             <ul class="dropdown-menu">
