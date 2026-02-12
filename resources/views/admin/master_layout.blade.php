@@ -59,7 +59,7 @@
               @else
               <img alt="image" src="{{ asset($defaultProfile->image) }}" class="rounded-circle mr-1">
               @endif
-            <div class="d-sm-none d-lg-inline-block">{{ $header_admin->name }}</div></a>
+    
             <div class="dropdown-menu dropdown-menu-right">
 
               <a href="{{ route('admin.profile') }}" class="dropdown-item has-icon">
