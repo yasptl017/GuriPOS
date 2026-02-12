@@ -28,14 +28,29 @@
                                 <div class="form-group col-12">
                                     <label>{{__('admin.Thumbnail Image Preview')}}</label>
                                     <div>
-                                        <img id="preview-img" class="admin-img" src="{{ asset($product->thumb_image) }}" alt="">
+                                        @if ($product->thumb_image)
+                                            <img id="preview-img" class="admin-img" src="{{ asset($product->thumb_image) }}" alt="">
+                                            <div id="preview-placeholder" class="text-muted" style="display:none;">No thumbnail uploaded.</div>
+                                        @else
+                                            <img id="preview-img" class="admin-img" src="" alt="" style="display:none;">
+                                            <div id="preview-placeholder" class="text-muted">No thumbnail uploaded.</div>
+                                        @endif
                                     </div>
                                 </div>
 
                                 <div class="form-group col-12">
-                                    <label>{{__('admin.Thumnail Image')}} <span class="text-danger">*</span></label>
+                                    <label>{{__('admin.Thumnail Image')}}</label>
                                     <input type="file" class="form-control-file"  name="thumb_image" onchange="previewThumnailImage(event)">
                                 </div>
+
+                                @if ($product->thumb_image)
+                                <div class="form-group col-12">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="remove_thumb_image" name="remove_thumb_image" value="1">
+                                        <label class="custom-control-label text-danger" for="remove_thumb_image">Remove current thumbnail</label>
+                                    </div>
+                                </div>
+                                @endif
 
                                 <div class="form-group col-12">
                                     <label>{{__('admin.Name')}} <span class="text-danger">*</span></label>
@@ -68,12 +83,12 @@
                                 </div>
 
                                 <div class="form-group col-12">
-                                    <label>{{__('admin.Short Description') }} <span class="text-danger">*</span></label>
+                                    <label>{{__('admin.Short Description') }}</label>
                                     <textarea name="short_description" id="" cols="30" rows="10" class="form-control text-area-5">{{ $product->short_description }}</textarea>
                                 </div>
 
                                 <div class="form-group col-12">
-                                    <label>{{__('admin.Long Description')}} <span class="text-danger">*</span></label>
+                                    <label>{{__('admin.Long Description')}}</label>
                                     <textarea name="long_description" id="" cols="30" rows="10" class="summernote">{{ $product->long_description }}</textarea>
                                 </div>
 
@@ -125,7 +140,21 @@
         $(document).ready(function () {
             $("#name").on("focusout",function(e){
                 $("#slug").val(convertToSlug($(this).val()));
-            })
+            });
+
+            $("#remove_thumb_image").on("change", function () {
+                var output = document.getElementById('preview-img');
+                var placeholder = document.getElementById('preview-placeholder');
+
+                if (this.checked) {
+                    if (output) {
+                        output.style.display = 'none';
+                    }
+                    if (placeholder) {
+                        placeholder.style.display = 'block';
+                    }
+                }
+            });
         });
     })(jQuery);
 
@@ -140,7 +169,16 @@
         var reader = new FileReader();
         reader.onload = function(){
             var output = document.getElementById('preview-img');
+            var placeholder = document.getElementById('preview-placeholder');
+            var removeCheckbox = document.getElementById('remove_thumb_image');
             output.src = reader.result;
+            output.style.display = 'block';
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+            if (removeCheckbox) {
+                removeCheckbox.checked = false;
+            }
         }
         reader.readAsDataURL(event.target.files[0]);
     };

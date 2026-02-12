@@ -26,7 +26,7 @@
 
 
                                 <div class="form-group col-12">
-                                    <label>{{__('admin.Thumnail Image')}} <span class="text-danger">*</span></label>
+                                    <label>{{__('admin.Thumnail Image')}}</label>
                                     <input type="file" class="form-control-file"  name="thumb_image" onchange="previewThumnailImage(event)">
                                 </div>
 
@@ -61,12 +61,12 @@
                                 </div>
 
                                 <div class="form-group col-12">
-                                    <label>{{__('admin.Short Description')}} <span class="text-danger">*</span></label>
+                                    <label>{{__('admin.Short Description')}}</label>
                                     <textarea name="short_description" id="" cols="30" rows="10" class="form-control text-area-5">{{ old('short_description') }}</textarea>
                                 </div>
 
                                 <div class="form-group col-12">
-                                    <label>{{__('admin.Long Description')}} <span class="text-danger">*</span></label>
+                                    <label>{{__('admin.Long Description')}}</label>
                                     <textarea name="long_description" id="" cols="30" rows="10" class="summernote">{{ old('long_description') }}</textarea>
                                 </div>
 

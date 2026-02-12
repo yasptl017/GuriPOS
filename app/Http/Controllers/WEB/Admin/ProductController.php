@@ -69,10 +69,8 @@ class ProductController extends Controller
         $rules = [
             'name' => 'required',
             'slug' => 'required|unique:products',
-            'thumb_image' => 'required',
+            'thumb_image' => 'nullable|image',
             'category' => 'required',
-            'short_description' => 'required',
-            'long_description' => 'required',
             'price' => 'required|numeric',
             'status' => 'required',
         ];
@@ -81,15 +79,13 @@ class ProductController extends Controller
             'slug.required' => trans('admin_validation.Slug is required'),
             'slug.unique' => trans('admin_validation.Slug already exist'),
             'category.required' => trans('admin_validation.Category is required'),
-            'thumb_image.required' => trans('admin_validation.thumbnail is required'),
-            'short_description.required' => trans('admin_validation.Short description is required'),
-            'long_description.required' => trans('admin_validation.Long description is required'),
             'price.required' => trans('admin_validation.Price is required'),
             'status.required' => trans('admin_validation.Status is required'),
         ];
         $this->validate($request, $rules,$customMessages);
 
         $product = new Product();
+        $product->thumb_image = '';
         if($request->thumb_image){
             $extention = $request->thumb_image->getClientOriginalExtension();
             $image_name = Str::slug($request->name).date('-Y-m-d-h-i-s-').rand(999,9999).'.'.$extention;
@@ -105,8 +101,8 @@ class ProductController extends Controller
         $product->sku = $request->sku;
         $product->price = $request->price;
         $product->offer_price = $request->offer_price;
-        $product->short_description = $request->short_description;
-        $product->long_description = $request->long_description;
+        $product->short_description = $request->short_description ?? '';
+        $product->long_description = $request->long_description ?? '';
         $product->status = $request->status;
         $product->tags = $request->tags;
         $product->seo_title = $request->seo_title ? $request->seo_title : $request->name;
@@ -133,9 +129,9 @@ class ProductController extends Controller
         $rules = [
             'name' => 'required',
             'slug' => 'required|unique:products,slug,'.$product->id,
+            'thumb_image' => 'nullable|image',
+            'remove_thumb_image' => 'nullable|boolean',
             'category' => 'required',
-            'short_description' => 'required',
-            'long_description' => 'required',
             'price' => 'required|numeric',
             'status' => 'required',
             'today_special' => 'required',
@@ -145,13 +141,22 @@ class ProductController extends Controller
             'slug.required' => trans('admin_validation.Slug is required'),
             'slug.unique' => trans('admin_validation.Slug already exist'),
             'category.required' => trans('admin_validation.Category is required'),
-            'thumb_image.required' => trans('admin_validation.thumbnail is required'),
-            'short_description.required' => trans('admin_validation.Short description is required'),
-            'long_description.required' => trans('admin_validation.Long description is required'),
             'price.required' => trans('admin_validation.Price is required'),
             'status.required' => trans('admin_validation.Status is required'),
         ];
         $this->validate($request, $rules,$customMessages);
+
+        $removeThumbImage = $request->boolean('remove_thumb_image');
+
+        if ($removeThumbImage && !$request->thumb_image && $product->thumb_image) {
+            $old_thumbnail = $product->thumb_image;
+            $product->thumb_image = '';
+            $product->save();
+
+            if (File::exists(public_path().'/'.$old_thumbnail)) {
+                unlink(public_path().'/'.$old_thumbnail);
+            }
+        }
 
         if($request->thumb_image){
             $old_thumbnail = $product->thumb_image;
@@ -173,8 +178,8 @@ class ProductController extends Controller
         $product->sku = $request->sku;
         $product->price = $request->price;
         $product->offer_price = $request->offer_price;
-        $product->short_description = $request->short_description;
-        $product->long_description = $request->long_description;
+        $product->short_description = $request->short_description ?? '';
+        $product->long_description = $request->long_description ?? '';
         $product->tags = $request->tags;
         $product->status = $request->status;
         $product->seo_title = $request->seo_title ? $request->seo_title : $request->name;
