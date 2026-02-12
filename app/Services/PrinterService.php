@@ -28,8 +28,6 @@ class PrinterService
         $print->content = $order;
         $print->save();
 
-        dump($order);
-
         return "Order successfully sent to kitchen printer.";
     }
 
@@ -43,8 +41,6 @@ class PrinterService
         $print->printer = $this->deskPrinter;
         $print->content = $order;
         $print->save();
-
-        dump($order);
 
         return "Order successfully sent to kitchen printer.";
     }
@@ -61,7 +57,6 @@ class PrinterService
         $print->content = $this->formatOrderDetails($order);
         $print->save();
 
-        dump($this->formatOrderDetails($order));
         return "Order successfully sent to kitchen printer.";
     }
 

@@ -1,373 +1,422 @@
 @extends('admin.master_layout')
 @section('title')
-    <title>{{__('admin.Invoice')}}</title>
+    <title>{{ __('admin.Invoice') }}</title>
 @endsection
+
 <style>
-    .invoice {
-        border: 1px solid #e6e8ec;
+    .order-page-card {
+        border: 1px solid #e5e7eb;
         border-radius: 14px;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
         background: #fff;
-        padding: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        padding: 22px;
     }
 
-    .invoice-title {
+    .order-head {
         display: flex;
-        align-items: center;
         justify-content: space-between;
+        align-items: flex-start;
         gap: 16px;
+        margin-bottom: 16px;
     }
 
-    .invoice-number {
+    .order-head-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.2;
+    }
+
+    .order-head-subtitle {
+        margin-top: 5px;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .order-number-chip {
         background: #f8fafc;
         border: 1px solid #dbe3ee;
-        padding: 8px 12px;
         border-radius: 10px;
+        padding: 8px 12px;
+        font-weight: 700;
+        color: #111827;
+        white-space: nowrap;
+    }
+
+    .info-box {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fbfdff;
+        padding: 14px 16px;
+        height: 100%;
+    }
+
+    .info-box-title {
+        margin: 0 0 10px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .info-row {
+        display: grid;
+        grid-template-columns: 130px minmax(0, 1fr);
+        gap: 8px;
+        padding: 8px 0;
+        border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .info-row:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .info-key {
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .info-val {
+        color: #111827;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .summary-title {
+        margin: 18px 0 10px;
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .summary-wrap {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .summary-wrap .table {
+        margin-bottom: 0;
+    }
+
+    .summary-wrap .table thead th {
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        color: #374151;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 11px 12px;
+    }
+
+    .summary-wrap .table td {
+        padding: 11px 12px;
+        border-top: 1px solid #f1f5f9;
+        vertical-align: top;
+    }
+
+    .product-link {
+        color: #111827;
         font-weight: 700;
     }
 
-    .order-status-card {
-        border: 1px solid #e6e8ec;
-        border-radius: 12px;
-        background: #f8fafc;
-        padding: 14px;
+    .product-link:hover {
+        color: #2563eb;
+        text-decoration: none;
     }
 
-    .order-status-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 7px 0;
-        border-bottom: 1px dashed #d6dbe3;
+    .product-options {
+        color: #4b5563;
+        font-size: 13px;
+        line-height: 1.45;
     }
 
-    .order-status-row:last-child {
-        border-bottom: 0;
-    }
-
-    .invoice-summary {
-        border: 1px solid #e6e8ec;
+    .totals-card {
+        border: 1px solid #e5e7eb;
         border-radius: 12px;
         background: #fff;
-        padding: 14px;
+        padding: 14px 16px;
     }
 
-    .invoice-summary .invoice-detail-item {
-        margin-bottom: 8px;
+    .totals-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 7px 0;
+        color: #1f2937;
     }
 
-    .invoice-print .table th {
-        background: #f8fafc;
+    .totals-label {
+        color: #4b5563;
+    }
+
+    .totals-value {
+        font-weight: 700;
+    }
+
+    .totals-row-grand {
+        margin-top: 6px;
+        padding-top: 10px;
+        border-top: 1px solid #e5e7eb;
+        font-size: 17px;
+        color: #111827;
+    }
+
+    .action-bar {
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    @media (max-width: 767.98px) {
+        .order-page-card {
+            padding: 14px;
+        }
+
+        .order-head {
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .order-head-title {
+            font-size: 20px;
+        }
+
+        .info-row {
+            grid-template-columns: 1fr;
+            gap: 3px;
+        }
     }
 
     @media print {
-        /* Set paper width to 80mm for thermal printer */
         body {
             width: 80mm;
-            font-size: 10px; /* Adjust font size as needed */
-            margin: 0; /* Remove default margins */
-            padding: 0; /* Remove default padding */
+            font-size: 10px;
+            margin: 0;
+            padding: 0;
         }
 
-        /* Hide elements not needed for printing */
         .section-header,
-        .order-status,
         #sidebar-wrapper,
-        .print-area,
+        .action-bar,
         .main-footer,
-        .additional_info,
-        .invoice-print .invoice-title img, /* Hide logo */
-            /* Hide logo */
-        .invoice-print .section-title, /* Hide Order Summary section title */
-        .invoice-print .table-responsive, /* Hide Order Summary table */
-        .invoice-print .text-md-right, /* Hide Print and Delete buttons */
-        .invoice-print .section-title /* Hide Order Status section title */
-        { /* Hide all rows except the last one */
+        .summary-title,
+        .summary-wrap {
             display: none !important;
+        }
+
+        .order-page-card {
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
         }
 
         .print_totel {
             display: block !important;
             margin-left: -100px !important;
         }
-
-        .invoice-container {
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .invoice-print .invoice-title .invoice-number {
-            float: left !important;
-        }
-
-        .invoice-detail-item {
-            margin-bottom: 10px;
-        }
-
-        .invoice-detail-name {
-            float: left;
-        }
-
-        .invoice-detail-value {
-            float: left;
-        }
-
-        .invoice-detail-value-lg {
-            font-size: larger;
-        }
-
-        .invoice-detail-item::after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-
     }
 </style>
+
 @section('admin-content')
-    <!-- Main Content -->
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>{{__('admin.Invoice')}}</h1>
+                <h1>{{ __('admin.Invoice') }}</h1>
                 <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item active"><a
-                            href="{{ route('admin.dashboard') }}">{{__('admin.Dashboard')}}</a></div>
-                    <div class="breadcrumb-item">{{__('admin.Invoice')}}</div>
+                    <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">{{ __('admin.Dashboard') }}</a></div>
+                    <div class="breadcrumb-item">{{ __('admin.Invoice') }}</div>
                 </div>
             </div>
+
             <div class="section-body">
-                <div class="invoice">
-                    <div class="invoice-print">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="invoice-title">
-                                    <h2><img src="{{ asset($setting->logo) }}" alt="" width="120px"></h2>
-                                    <div class="invoice-number">Order #{{ $order->order_id }}</div>
-                                </div>
-                                <hr>
-                                @if ($order->user)
-                                    @php
-                                        $orderAddress = $order->user;
-                                    @endphp
-                                    <div class="row">
-                                        <div class="col-md-6" style="display: block !important">
-                                            <address>
-                                                @if ($orderAddress->email !== 'walkingcustjd@pp.co.pp')
-                                                    <strong>{{__('admin.Delivery Information')}}:</strong><br>
-                                                    {{ optional($order->orderAddress)->name }}<br>
-                                                    @if (optional($order->orderAddress)->email)
-                                                        {{ optional($order->orderAddress)->email }}<br>
-                                                    @endif
-                                                    @if (optional($order->orderAddress)->phone)
-                                                        {{ optional($order->orderAddress)->phone }}<br>
-                                                    @endif
-                                                    @if (optional($order->orderAddress)->address)
-                                                        {{ optional($order->orderAddress)->address }}<br>
-                                                    @endif
-                                                    <br>
-                                                @else
-                                                    <strong>Order Type: Dine-in order</strong>
-                                                @endif
-                                            </address>
-                                        </div>
+                @php
+                    $orderAddress = optional($order->orderAddress);
+                    $isWalkInOrder = optional($order->user)->email === 'walkingcustjd@pp.co.pp';
+                @endphp
 
-                                        @else
-                                            <div class="row">
-                                                <div class="col-md-6" style="display: block !important">
-                                                    <address>
-                                                        {{ $order->order_type }}
-                                                    </address>
-                                                </div>
-                                                @endif
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <address>
-                                                        <strong>{{__('admin.Order Information')}}:</strong><br>
-                                                        {{__('admin.Date')}}: {{ $order->created_at->format('d F, Y h:i:s A') }}
-                                                        <br>
-                                                        <strong>{{__('admin.Order Type')}}: </strong>
-                                                        {{ $order->order_type }}
-                                                        <br>
-                                                        <strong>{{__('admin.Payment Method')}}: </strong>
-                                                        @if($order->payment_method === 'Card')
-                                                            <span class="badge badge-primary"><i class="fas fa-credit-card"></i> Card</span>
-                                                        @elseif($order->payment_method === 'Cash')
-                                                            <span class="badge badge-success"><i class="fas fa-money-bill-wave"></i> Cash</span>
-                                                        @elseif($order->payment_method === 'Unpaid - COD')
-                                                            <span class="badge badge-danger"><i class="fas fa-clock"></i> Unpaid - COD</span>
-                                                        @else
-                                                            <span class="badge badge-secondary">{{ $order->payment_method }}</span>
-                                                        @endif
-                                                       <!-- {{__('admin.Status')}} :
-                                                        @if ($order->order_status == 1)
-                                                            <span
-                                                                class="badge badge-success">{{__('admin.Pregress')}} </span>
-                                                        @elseif ($order->order_status == 2)
-                                                            <span
-                                                                class="badge badge-success">{{__('admin.Delivered')}} </span>
-                                                        @elseif ($order->order_status == 3)
-                                                            <span
-                                                                class="badge badge-success">{{__('admin.Completed')}} </span>
-                                                        @elseif ($order->order_status == 4)
-                                                            <span
-                                                                class="badge badge-danger">{{__('admin.Declined')}} </span>
-                                                        @else
-                                                            <span
-                                                                class="badge badge-danger">{{__('admin.Pending')}}</span>
-                                                        @endif
-                                                        -->
-                                                    </address>
-                                                </div>
+                <div class="order-page-card">
+                    <div class="order-head">
+                        <div>
+                            <h2 class="order-head-title">Order Details</h2>
+                            <div class="order-head-subtitle">{{ __('admin.Date') }}: {{ optional($order->created_at)->format('d F, Y h:i:s A') }}</div>
+                        </div>
+                        <div class="order-number-chip">Order #{{ $order->order_id }}</div>
+                    </div>
 
-                                            </div>
+                    <div class="row">
+                        <div class="col-lg-6 mb-3">
+                            <div class="info-box">
+                                <h6 class="info-box-title">{{ __('admin.Delivery Information') }}</h6>
+
+                                @if ($isWalkInOrder)
+                                    <div class="info-row">
+                                        <div class="info-key">{{ __('admin.Order Type') }}</div>
+                                        <div class="info-val">Dine-in order</div>
                                     </div>
-                            </div>
-
-                            <div class="row mt-4">
-                                <div class="col-md-12">
-                                    <div class="section-title">{{__('admin.Order Summary')}}</div>
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-hover table-md">
-                                            <tr>
-                                                <th width="5%">#</th>
-                                                <th width="25%">{{__('admin.Product')}}</th>
-                                                <th width="20%">{{__('admin.Size & Optional')}}</th>
-                                                <th width="10%" class="text-center">{{__('admin.Unit Price')}}</th>
-                                                <th width="10%" class="text-center">{{__('admin.Quantity')}}</th>
-                                                <th width="10%" class="text-right">{{__('admin.Total')}}</th>
-                                            </tr>
-
-                                            @foreach ($order->orderProducts as $index => $orderProduct)
-                                                <tr>
-                                                    <td>{{ ++$index }}</td>
-                                                    <td>
-                                                        <a href="{{ route('admin.product.edit', $orderProduct->product_id) }}">{{ $orderProduct->product_name }}</a>
-                                                    </td>
-                                                    <td>
-                                                        {{ $orderProduct->product_size }}
-                                                        <br>
-                                                        @php
-                                                            $optional_items = json_decode($orderProduct->optional_item);
-                                                        @endphp
-                                                        @foreach ($optional_items as $optional_item)
-                                                            {{ $optional_item->item }}
-                                                            (+{{ $currency_icon }}{{ $optional_item->price }})
-                                                            <br>
-                                                        @endforeach
-
-                                                    </td>
-
-                                                    <td class="text-center">{{ $setting->currency_icon }}{{ $orderProduct->unit_price }}</td>
-                                                    <td class="text-center">{{ $orderProduct->qty }}</td>
-                                                    @php
-                                                        $total = ($orderProduct->unit_price * $orderProduct->qty)  + $orderProduct->optional_price
-                                                    @endphp
-                                                    <td class="text-right">{{ $setting->currency_icon }}{{ $total }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </table>
+                                @else
+                                    <div class="info-row">
+                                        <div class="info-key">Name</div>
+                                        <div class="info-val">{{ $orderAddress->name ?: 'N/A' }}</div>
                                     </div>
-
-                                    <div class="row mt-3">
-                                        <div class="col-lg-6 order-status">
-                                            <div class="section-title">{{__('admin.Order Status')}}</div>
-                                            <div class="order-status-card">
-                                                <div class="order-status-row">
-                                                    <strong>{{__('admin.Payment')}}</strong>
-                                                    @if($order->payment_status == 1)
-                                                        <span class="badge badge-success">{{__('admin.Success')}}</span>
-                                                    @else
-                                                        <span class="badge badge-warning">{{__('admin.Pending')}}</span>
-                                                    @endif
-                                                </div>
-                                                <div class="order-status-row">
-                                                    <strong>{{__('admin.Order')}}</strong>
-                                                    @if ($order->order_status == 1)
-                                                        <span class="badge badge-primary">{{__('admin.In Progress')}}</span>
-                                                    @elseif ($order->order_status == 2)
-                                                        <span class="badge badge-info">{{__('admin.Delivered')}}</span>
-                                                    @elseif ($order->order_status == 3)
-                                                        <span class="badge badge-success">{{__('admin.Completed')}}</span>
-                                                    @elseif ($order->order_status == 4)
-                                                        <span class="badge badge-danger">{{__('admin.Declined')}}</span>
-                                                    @else
-                                                        <span class="badge badge-warning">{{__('admin.Pending')}}</span>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-6 text-right">
-                                            <div class="invoice-summary">
-                                                <div class="invoice-detail-item">
-                                                    <div class="invoice-detail-name">{{__('admin.Subtotal')}}
-                                                        : {{ $setting->currency_icon }}{{ round($order->sub_total, 2) }}</div>
-                                                </div>
-                                                <div class="invoice-detail-item">
-                                                    <div class="invoice-detail-name">{{__('admin.Discount')}}(-)
-                                                        : {{ $setting->currency_icon }}{{ round($order->coupon_price, 2) }}</div>
-                                                </div>
-                                                <div class="invoice-detail-item">
-                                                    <div class="invoice-detail-name">{{__('admin.Delivery Charge')}}
-                                                        : {{ $setting->currency_icon }}{{ round($order->delivery_charge, 2) }}</div>
-                                                </div>
-
-                                                <hr class="mt-2 mb-2">
-                                                <div class="invoice-detail-item">
-                                                    <div
-                                                        class="invoice-detail-value invoice-detail-value-lg">{{__('admin.Grand Total')}}
-                                                        : {{ $setting->currency_icon }}{{ round($order->grand_total, 2) }}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
+                                    <div class="info-row">
+                                        <div class="info-key">Email</div>
+                                        <div class="info-val">{{ $orderAddress->email ?: 'N/A' }}</div>
                                     </div>
-                                </div>
+                                    <div class="info-row">
+                                        <div class="info-key">Phone</div>
+                                        <div class="info-val">{{ $orderAddress->phone ?: 'N/A' }}</div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-key">Address</div>
+                                        <div class="info-val">{{ $orderAddress->address ?: 'N/A' }}</div>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
-                        <div class="text-md-right print-area">
-                            <hr>
-                            <button class="btn btn-info btn-icon icon-left" onclick="viewReceipt({{ $order->id }})">
-                                <i class="fas fa-receipt"></i> View Receipt
-                            </button>
-                            <a href="{{ route('admin.order-receipt-pdf', $order->id) }}" class="btn btn-primary btn-icon icon-left">
-                                <i class="fas fa-file-pdf"></i> Save Receipt PDF
-                            </a>
+                        <div class="col-lg-6 mb-3">
+                            <div class="info-box">
+                                <h6 class="info-box-title">{{ __('admin.Order Information') }}</h6>
 
-                            <button class="btn btn-danger btn-icon icon-left" data-toggle="modal"
-                                    data-target="#deleteModal" onclick="deleteData({{ $order->id }})"><i
-                                    class="fas fa-times"></i> {{__('admin.Delete')}}</button>
+                                <div class="info-row">
+                                    <div class="info-key">{{ __('admin.Date') }}</div>
+                                    <div class="info-val">{{ optional($order->created_at)->format('d F, Y h:i:s A') }}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-key">{{ __('admin.Order Type') }}</div>
+                                    <div class="info-val">{{ $order->order_type ?: 'N/A' }}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-key">{{ __('admin.Payment Method') }}</div>
+                                    <div class="info-val">
+                                        @if ($order->payment_method === 'Card')
+                                            <span class="badge badge-primary"><i class="fas fa-credit-card"></i> Card</span>
+                                        @elseif ($order->payment_method === 'Cash')
+                                            <span class="badge badge-success"><i class="fas fa-money-bill-wave"></i> Cash</span>
+                                        @elseif ($order->payment_method === 'Unpaid - COD')
+                                            <span class="badge badge-danger"><i class="fas fa-clock"></i> Unpaid - COD</span>
+                                        @else
+                                            <span class="badge badge-secondary">{{ $order->payment_method ?: 'N/A' }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="summary-title">{{ __('admin.Order Summary') }}</div>
+                    <div class="table-responsive summary-wrap">
+                        <table class="table table-hover table-md">
+                            <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="25%">{{ __('admin.Product') }}</th>
+                                <th width="30%">{{ __('admin.Size & Optional') }}</th>
+                                <th width="13%" class="text-center">{{ __('admin.Unit Price') }}</th>
+                                <th width="12%" class="text-center">{{ __('admin.Quantity') }}</th>
+                                <th width="15%" class="text-right">{{ __('admin.Total') }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($order->orderProducts as $index => $orderProduct)
+                                @php
+                                    $optionalItems = collect(json_decode($orderProduct->optional_item) ?: []);
+                                    $total = ($orderProduct->unit_price * $orderProduct->qty) + $orderProduct->optional_price;
+                                @endphp
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.product.edit', $orderProduct->product_id) }}" class="product-link">
+                                            {{ $orderProduct->product_name }}
+                                        </a>
+                                    </td>
+                                    <td class="product-options">
+                                        @if ($orderProduct->product_size)
+                                            <div>{{ $orderProduct->product_size }}</div>
+                                        @endif
+
+                                        @forelse ($optionalItems as $optionalItem)
+                                            @if (!empty($optionalItem->item))
+                                                <div>{{ $optionalItem->item }} (+{{ $setting->currency_icon }}{{ $optionalItem->price }})</div>
+                                            @endif
+                                        @empty
+                                            <div>-</div>
+                                        @endforelse
+                                    </td>
+                                    <td class="text-center">{{ $setting->currency_icon }}{{ number_format($orderProduct->unit_price, 2) }}</td>
+                                    <td class="text-center">{{ $orderProduct->qty }}</td>
+                                    <td class="text-right">{{ $setting->currency_icon }}{{ number_format($total, 2) }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-lg-6 ml-lg-auto">
+                            <div class="totals-card">
+                                <div class="totals-row">
+                                    <span class="totals-label">{{ __('admin.Subtotal') }}</span>
+                                    <span class="totals-value">{{ $setting->currency_icon }}{{ number_format($order->sub_total, 2) }}</span>
+                                </div>
+                                <div class="totals-row">
+                                    <span class="totals-label">{{ __('admin.Discount') }} (-)</span>
+                                    <span class="totals-value">{{ $setting->currency_icon }}{{ number_format($order->coupon_price, 2) }}</span>
+                                </div>
+                                <div class="totals-row">
+                                    <span class="totals-label">{{ __('admin.Delivery Charge') }}</span>
+                                    <span class="totals-value">{{ $setting->currency_icon }}{{ number_format($order->delivery_charge, 2) }}</span>
+                                </div>
+                                <div class="totals-row totals-row-grand">
+                                    <span class="totals-label">{{ __('admin.Grand Total') }}</span>
+                                    <span class="totals-value">{{ $setting->currency_icon }}{{ number_format($order->grand_total, 2) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-bar">
+                        <button class="btn btn-info btn-icon icon-left" onclick="viewReceipt({{ $order->id }})">
+                            <i class="fas fa-receipt"></i> View Receipt
+                        </button>
+                        <a href="{{ route('admin.order-receipt-pdf', $order->id) }}" class="btn btn-primary btn-icon icon-left">
+                            <i class="fas fa-file-pdf"></i> Save Receipt PDF
+                        </a>
+                        <button class="btn btn-danger btn-icon icon-left" data-toggle="modal" data-target="#deleteModal" onclick="deleteData({{ $order->id }})">
+                            <i class="fas fa-times"></i> {{ __('admin.Delete') }}
+                        </button>
+                    </div>
                 </div>
-
+            </div>
         </section>
+
         <div class="col-lg-12 print_totel" style="display:none !important">
-
             <div class="invoice-detail-item">
-                <div class="invoice-detail-name">{{__('admin.Subtotal')}}
-                    : {{ $setting->currency_icon }}{{ round($order->sub_total, 2) }}</div>
+                <div class="invoice-detail-name">{{ __('admin.Subtotal') }} : {{ $setting->currency_icon }}{{ round($order->sub_total, 2) }}</div>
             </div>
             <div class="invoice-detail-item">
-                <div class="invoice-detail-name">{{__('admin.Discount')}}(-)
-                    : {{ $setting->currency_icon }}{{ round($order->coupon_price, 2) }}</div>
+                <div class="invoice-detail-name">{{ __('admin.Discount') }}(-) : {{ $setting->currency_icon }}{{ round($order->coupon_price, 2) }}</div>
             </div>
             <div class="invoice-detail-item">
-                <div class="invoice-detail-name">{{__('admin.Delivery Charge')}}
-                    : {{ $setting->currency_icon }}{{ round($order->delivery_charge, 2) }}</div>
+                <div class="invoice-detail-name">{{ __('admin.Delivery Charge') }} : {{ $setting->currency_icon }}{{ round($order->delivery_charge, 2) }}</div>
             </div>
-
             <hr class="mt-2 mb-2">
             <div class="invoice-detail-item">
-                <div class="invoice-detail-value invoice-detail-value-lg">{{__('admin.Grand Total')}}
-                    : {{ $setting->currency_icon }}{{ round($order->grand_total, 2) }}</div>
+                <div class="invoice-detail-value invoice-detail-value-lg">{{ __('admin.Grand Total') }} : {{ $setting->currency_icon }}{{ round($order->grand_total, 2) }}</div>
             </div>
         </div>
     </div>
-    <!-- Receipt Modal -->
+
     <div class="modal fade" id="receiptModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -401,16 +450,11 @@
             $("#deleteForm").attr("action", '{{ url("admin/delete-order/") }}' + "/" + id)
         }
 
-        function printData(id) {
-            console.log(id)
-            $("#printForm").attr("action", '{{ url("admin/order-print/") }}' + "/" + id)
-        }
-
         var _receiptOrderId = null;
 
         function viewReceipt(orderId) {
             _receiptOrderId = orderId;
-            $('#receiptContent').text('Loading…');
+            $('#receiptContent').text('Loading...');
             $('#receiptModal').modal('show');
             $.ajax({
                 url: '{{ url("admin/order-receipt") }}/' + orderId,
@@ -436,7 +480,6 @@
                 data: { _token: '{{ csrf_token() }}' },
                 success: function() {
                     toastr.success('Sent to printer successfully');
-                    // Refresh the receipt display
                     viewReceipt(_receiptOrderId);
                 },
                 error: function() {
@@ -454,5 +497,4 @@
             w.print();
         }
     </script>
-
 @endsection
