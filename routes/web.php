@@ -425,6 +425,7 @@ Route::post('/auth/store-phone', function (Request $request) {
 
 Route::get('checkout', [DeliveryCheckoutController::class, 'checkout'])->name('checkout');
 Route::get('/success', [GuestPaymentController::class, 'success'])->name('success');
+Route::get('/success/receipt/{order}', [GuestPaymentController::class, 'downloadReceipt'])->name('success.receipt.download');
 Route::get('pickup', [GuestPaymentController::class, 'pickup'])->name('pickup');
 Route::get('delivery', [GuestPaymentController::class, 'delivery'])->name('delivery');
 Route::post('stripe-payment', [GuestPaymentController::class, 'stripe_payment'])->name('stripe-payment');

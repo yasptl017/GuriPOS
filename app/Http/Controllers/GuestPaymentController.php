@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\MailHelper;
-use App\Mail\OrderSuccessfully;
 use App\Models\DeliveryArea;
 use App\Models\EmailTemplate;
 use App\Models\OrderControl;
@@ -17,7 +16,6 @@ use App\Services\PrinterService;
 use Cart;
 use Illuminate\Http\Request;
 use Log;
-use Mail;
 use Session;
 use stdClass;
 use Stripe;
@@ -189,6 +187,7 @@ class GuestPaymentController extends Controller
         $order->order_status = 0;
         $order->order_type = ($orderType == 1) ? 'Pickup' : 'Delivery';
         $order->cash_on_delivery = $cash_on_delivery;
+        $order->coupon_name = Session::get('coupon_name');
         $order->save();
 
         $cart_contents = Cart::content();
@@ -230,47 +229,12 @@ class GuestPaymentController extends Controller
         $orderAddress->save();
         // }
 
-        if (!empty($orderAddress->name)) {
-            $customerDetails = "Name: " . $orderAddress->name . "\n";
-        }
-        if (!empty($orderAddress->phone)) {
-            $customerDetails .= "Phone: " . $orderAddress->phone . "\n";
-        }
-        if (!empty($orderAddress->address)) {
-            $customerDetails .= "Address: " . $orderAddress->address;
-        }
-        // }
-
-
-        $orderId = $order['id'];
-        $orderProducts = OrderProduct::where('order_id', $orderId)->get();
-
-        $formattedItems = [];
-
-        foreach ($orderProducts as $product) {
-            $formattedItem = new stdClass();
-            $formattedItem->name = $product->product_name;
-            $formattedItem->quantity = $product->qty;
-            $formattedItem->price = $product->unit_price * $product->qty;
-            $formattedItem->size = $product->product_size;
-            $formattedItems[] = $formattedItem;
-        }
-
-        $details =
-
-            (object)[
-                'id' => $orderId,
-                'items' => $formattedItems,
-                'type' => $order['order_type'],
-                'discount' => $order['coupon_price'],
-                'delivery' => $order['delivery_charge'],
-                'total' => $order['grand_total'],
-                'inst' => $inst,
-                'customerDetails' => $customerDetails
-            ];
-        //dump($details);
-
+        $details = $this->buildPrintableOrderDetails($order, $inst);
         $printerService = new PrinterService();
+        $receipt = $printerService->getFormattedReceipt($details);
+        $order->print_receipt = $receipt;
+        $order->save();
+
         $printerService->printToKitchen($details);
         $printerService->printToDesk($details);
 
@@ -301,6 +265,27 @@ class GuestPaymentController extends Controller
 
     }
 
+    public function downloadReceipt(Order $order)
+    {
+        $successOrder = Session::get('order-success');
+
+        if (!$successOrder || (int)$successOrder->id !== (int)$order->id) {
+            abort(403);
+        }
+
+        if (empty($order->print_receipt)) {
+            $printerService = new PrinterService();
+            $details = $this->buildPrintableOrderDetails($order);
+            $order->print_receipt = $printerService->getFormattedReceipt($details);
+            $order->save();
+        }
+
+        $fileName = 'receipt-' . $order->order_id . '.txt';
+        return response($order->print_receipt)
+            ->header('Content-Type', 'text/plain; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    }
+
     public function set_delivery_charge(Request $request)
     {
         Session::put('delivery_id', $request->delivery_id);
@@ -309,16 +294,23 @@ class GuestPaymentController extends Controller
 
     public function sendOrderSuccessMail($userName, $userEmail, $userPhone, $order_result, $payment_method, $payment_status)
     {
+        if (!filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
+            Log::warning('Order email skipped due to invalid address', [
+                'order_id' => $order_result['order']->order_id ?? null,
+                'email' => $userEmail,
+            ]);
+            return;
+        }
+
         try {
             $setting = Setting::first();
             MailHelper::setMailConfig();
             $template = EmailTemplate::where('id', 6)->first();
     
             $payment_status = $payment_status == 1 ? 'Success' : 'Pending';
-            $subject = $template->subject;
-            $message = $template->description;
+            $subject = $template->subject ?? ('Order Receipt #' . ($order_result['order']->order_id ?? ''));
+            $message = $template->description ?? '';
             $order = $order_result['order'];
-            $products = $order->orderProducts;
             $productsString = '';
             foreach ($order->orderProducts as $product) {
                 $productsString .= $product->product_name . ' - ' . $product->qty . ', ';
@@ -336,10 +328,54 @@ class GuestPaymentController extends Controller
             $message = str_replace('{{order_id}}', $order_result['order']->order_id, $message);
 
             // Dispatch the job
-            SendOrderSuccessEmail::dispatch($userEmail, $message, $subject)->afterResponse();
+            SendOrderSuccessEmail::dispatch(
+                $userEmail,
+                $order_result['order']->id,
+                $subject,
+                $message
+            )->afterResponse();
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Error preparing order success mail: ' . $e->getMessage());
         }
+    }
+
+    private function buildPrintableOrderDetails(Order $order, $instructions = '')
+    {
+        $order->loadMissing('orderProducts', 'orderAddress');
+
+        $formattedItems = [];
+        foreach ($order->orderProducts as $product) {
+            $formattedItem = new stdClass();
+            $formattedItem->name = $product->product_name;
+            $formattedItem->quantity = (int)$product->qty;
+            $formattedItem->price = $product->unit_price * $product->qty;
+            $formattedItem->size = $product->product_size;
+            $formattedItems[] = $formattedItem;
+        }
+
+        $address = $order->orderAddress;
+        $customerLines = [];
+        if (!empty($address?->name)) {
+            $customerLines[] = 'Name: ' . $address->name;
+        }
+        if (!empty($address?->phone)) {
+            $customerLines[] = 'Phone: ' . $address->phone;
+        }
+        if (!empty($address?->address)) {
+            $customerLines[] = 'Address: ' . $address->address;
+        }
+
+        return (object)[
+            'id' => $order->id,
+            'items' => $formattedItems,
+            'type' => $order->order_type,
+            'discount' => $order->coupon_price,
+            'coupon_name' => $order->coupon_name,
+            'delivery' => $order->delivery_charge,
+            'total' => $order->grand_total,
+            'inst' => $instructions ?? '',
+            'customerDetails' => implode("\n", $customerLines),
+        ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\WEB\User;
 
 use App\Helpers\MailHelper;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendOrderSuccessEmail;
 use App\Library\SslCommerz\SslCommerzNotification;
 use App\Mail\OrderSuccessfully;
 use App\Models\Address;
@@ -371,25 +372,34 @@ class PaymentController extends Controller
 
     public function sendOrderSuccessMail($user, $order_result, $payment_method, $payment_status)
     {
+        if (!filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+            return;
+        }
 
-        $setting = Setting::first();
+        try {
+            MailHelper::setMailConfig();
 
-        MailHelper::setMailConfig();
+            $template = EmailTemplate::where('id', 6)->first();
+            $setting = Setting::first();
 
-        $template = EmailTemplate::where('id', 6)->first();
+            $paymentStatusLabel = $payment_status == 1 ? 'Success' : 'Pending';
+            $subject = $template->subject ?? ('Order Receipt #' . ($order_result->order_id ?? ''));
+            $message = $template->description ?? '';
+            $message = str_replace('{{user_name}}', $user->name, $message);
+            $message = str_replace('{{total_amount}}', $setting->currency_icon . $order_result->grand_total, $message);
+            $message = str_replace('{{payment_method}}', $payment_method, $message);
+            $message = str_replace('{{payment_status}}', $paymentStatusLabel, $message);
+            $message = str_replace('{{order_status}}', 'Pending', $message);
 
-        $payment_status = $payment_status == 1 ? 'Success' : 'Pending';
-        $subject = $template->subject;
-        $message = $template->description;
-        $message = str_replace('{{user_name}}', $user->name, $message);
-        //$message = str_replace('{{total_amount}}', $setting->currency_icon . $order_result->grand_total, $message);
-        $message = str_replace('{{payment_method}}', $payment_method, $message);
-        $message = str_replace('{{payment_status}}', $payment_status, $message);
-        $message = str_replace('{{order_status}}', 'Pending', $message);
-        //$message = str_replace('{{order_date}}', $order_result->created_at->format('d F, Y'), $message);
-        $message = "hi";
-        $subject = "sub";
-        Mail::to($user->email)->send(new OrderSuccessfully($message, $subject));
+            SendOrderSuccessEmail::dispatch(
+                $user->email,
+                $order_result->id,
+                $subject,
+                $message
+            )->afterResponse();
+        } catch (\Throwable $e) {
+            \Log::error('Error preparing order success mail: ' . $e->getMessage());
+        }
     }
 
     public function updateDeliveryCharge(Request $request)

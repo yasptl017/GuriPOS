@@ -114,7 +114,10 @@ class PrinterService
         }
         $output .= str_repeat("-", 42) . "\n";
         $output .= sprintf("%-30s %12s\n", "Subtotal:", "$" . number_format($subtotal, 2));
-        $output .= sprintf("%-30s %12s\n", "Discount:", "$" . number_format($order->discount, 2));
+        $couponLabel = !empty($order->coupon_name)
+            ? "Discount (" . $order->coupon_name . "):"
+            : "Discount:";
+        $output .= sprintf("%-30s %12s\n", $couponLabel, "$" . number_format($order->discount, 2));
         $output .= sprintf("%-30s %12s\n", "Delivery Charge:", "$" . number_format($order->delivery, 2));
         $output .= str_repeat("-", 42) . "\n";
         $output .= sprintf("%-30s %12s\n", "Total:", "$" . number_format($order->total, 2));
