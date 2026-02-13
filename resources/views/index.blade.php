@@ -575,7 +575,7 @@
         background: #ffffff;
         border: 1px solid #eef0f2;
         border-radius: 14px;
-        padding: 10px 12px;
+        padding: 5px 12px;
         box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
         transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         cursor: pointer;
