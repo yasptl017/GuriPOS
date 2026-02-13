@@ -71,7 +71,7 @@ class POSController extends Controller
         $products = $products->appends($request->all());
 
 
-        $categories = Category::where(['status' => 1])->get();
+        $categories = Category::where('status', 1)->orderBy('pos_sort_order')->orderBy('id')->get();
         $customers = Customer::orderBy('id', 'desc')->get();
 
         $delivery_areas = DeliveryArea::where('status', 1)->get();
@@ -550,9 +550,16 @@ style='display: none'
             $formattedItem->quantity = $product->qty;
             $formattedItem->price = $product->unit_price * $product->qty;
             $formattedItem->size = $product->product_size;
+            $formattedItem->category = $product->category_name ?? '';
             $formattedItems[] = $formattedItem;
         }
 
+        // Sort items by receipt_sort_order of their category
+        $sortMap = \App\Models\Category::orderBy('receipt_sort_order')->orderBy('id')
+            ->pluck('receipt_sort_order', 'name')->toArray();
+        usort($formattedItems, function ($a, $b) use ($sortMap) {
+            return ($sortMap[$a->category] ?? 9999) <=> ($sortMap[$b->category] ?? 9999);
+        });
 
         $details =
 

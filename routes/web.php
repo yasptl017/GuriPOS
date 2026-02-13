@@ -35,6 +35,7 @@ use App\Http\Controllers\WEB\Admin\OrderController;
 use App\Http\Controllers\WEB\Admin\OurChefController;
 use App\Http\Controllers\WEB\Admin\PaymentMethodController;
 use App\Http\Controllers\WEB\Admin\PrivacyPolicyController;
+use App\Http\Controllers\WEB\Admin\PrinterSettingController;
 use App\Http\Controllers\WEB\Admin\ProductCategoryController;
 use App\Http\Controllers\WEB\Admin\ProductController;
 use App\Http\Controllers\WEB\Admin\ProductGalleryController;
@@ -48,6 +49,7 @@ use App\Http\Controllers\WEB\Admin\TestimonialController;
 use App\Http\Controllers\WEB\Admin\WorkingHoursController;
 use App\Http\Controllers\WEB\Admin\OrderControlController;
 use App\Http\Controllers\WEB\Admin\ReportController;
+use App\Http\Controllers\WEB\Admin\CategoryOrderController;
 use App\Http\Controllers\WEB\User\AddressCotroller;
 use App\Http\Controllers\WEB\User\PaymentController;
 use App\Http\Controllers\WEB\User\PaypalController;
@@ -355,6 +357,10 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::get('reports/monthly', [ReportController::class, 'monthly'])->name('report.monthly');
         Route::get('reports/range',   [ReportController::class, 'range'])->name('report.range');
 
+        // Category Order
+        Route::get('category-order',        [CategoryOrderController::class, 'index'])->name('category-order');
+        Route::post('category-order/save',  [CategoryOrderController::class, 'save'])->name('category-order.save');
+
         Route::get('reservation', [OrderController::class, 'reservation'])->name('reservation');
         Route::get('reservation-notifications', [OrderController::class, 'reservationNotifications'])->name('reservation-notifications');
         Route::get('reservation-popup-data', [OrderController::class, 'reservationPopupData'])->name('reservation-popup-data');
@@ -367,6 +373,8 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
 
         Route::get('order-control', [OrderControlController::class, 'index'])->name('order-control');
         Route::put('update-order-control', [OrderControlController::class, 'update'])->name('update-order-control');
+        Route::get('printer-setting', [PrinterSettingController::class, 'index'])->name('printer-setting');
+        Route::put('update-printer-setting', [PrinterSettingController::class, 'update'])->name('update-printer-setting');
 
         Route::resource('coupon', CouponController::class);
         Route::put('coupon-status/{id}', [CouponController::class, 'changeStatus'])->name('coupon-status');

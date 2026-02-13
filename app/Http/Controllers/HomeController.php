@@ -91,7 +91,7 @@ class HomeController extends Controller
             'description' => $homepage->today_special_description,
             'products' => $today_special_products
         );
-        $categories = Category::where('status', 1)->where('show_homepage',1)->get();
+        $categories = Category::where('status', 1)->where('show_homepage', 1)->orderBy('home_sort_order')->orderBy('id')->get();
         $custom_product_ids = array();
         foreach($categories as $category){
             $products = Product::where(['status' => 1, 'category_id' => $category->id])->select('id','status','category_id')->get();

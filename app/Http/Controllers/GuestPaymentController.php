@@ -351,8 +351,16 @@ class GuestPaymentController extends Controller
             $formattedItem->quantity = (int)$product->qty;
             $formattedItem->price = $product->unit_price * $product->qty;
             $formattedItem->size = $product->product_size;
+            $formattedItem->category = $product->category_name ?? '';
             $formattedItems[] = $formattedItem;
         }
+
+        // Sort items by receipt_sort_order of their category
+        $sortMap = \App\Models\Category::orderBy('receipt_sort_order')->orderBy('id')
+            ->pluck('receipt_sort_order', 'name')->toArray();
+        usort($formattedItems, function ($a, $b) use ($sortMap) {
+            return ($sortMap[$a->category] ?? 9999) <=> ($sortMap[$b->category] ?? 9999);
+        });
 
         $address = $order->orderAddress;
         $customerLines = [];

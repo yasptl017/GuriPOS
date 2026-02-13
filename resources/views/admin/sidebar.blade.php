@@ -57,7 +57,7 @@
 
           </li>
 
-          <li class="nav-item dropdown {{ Route::is('admin.product.*') || Route::is('admin.product-variant') || Route::is('admin.product-gallery') || Route::is('admin.product-category.*') || Route::is('admin.reservation') || Route::is('admin.working-hours') || Route::is('admin.order-control') ? 'active' : '' }}">
+          <li class="nav-item dropdown {{ Route::is('admin.product.*') || Route::is('admin.product-variant') || Route::is('admin.product-gallery') || Route::is('admin.product-category.*') || Route::is('admin.category-order') || Route::is('admin.reservation') || Route::is('admin.working-hours') || Route::is('admin.order-control') || Route::is('admin.printer-setting') ? 'active' : '' }}">
             <a href="#" class="nav-link has-dropdown"><i class="fas fa-th-large"></i><span>{{__('admin.Manage Restaurant')}}</span></a>
             <ul class="dropdown-menu">
 
@@ -67,11 +67,14 @@
 
                 <li class="{{ Route::is('admin.product-category.*') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.product-category.index') }}">{{__('admin.Categories')}}</a></li>
 
+                <li class="{{ Route::is('admin.category-order') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.category-order') }}"><i class="fas fa-sort mr-1"></i>Category Order</a></li>
+
                 <li class="{{ Route::is('admin.reservation') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.reservation') }}">{{__('admin.Reservations')}}</a></li>
 
                 <li class="{{ Route::is('admin.working-hours') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.working-hours') }}">{{__('admin.Working Hours')}}</a></li>
 
                 <li class="{{ Route::is('admin.order-control') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.order-control') }}">Order Control</a></li>
+                <li class="{{ Route::is('admin.printer-setting') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.printer-setting') }}">Printer Settings</a></li>
 
             </ul>
           </li>

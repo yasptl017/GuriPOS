@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\PrintJob;
+use App\Models\Setting;
 use Illuminate\Support\Str;
 
 class PrinterService
@@ -12,8 +13,10 @@ class PrinterService
 
     public function __construct()
     {
-        $this->kitchenPrinter = env('KITCHEN_PRINTER');
-        $this->deskPrinter = env('DESK_PRINTER');
+        $setting = Setting::select('kitchen_printer', 'desk_printer')->first();
+
+        $this->kitchenPrinter = $this->normalizePrinterName(optional($setting)->kitchen_printer);
+        $this->deskPrinter = $this->normalizePrinterName(optional($setting)->desk_printer);
     }
 
     public function sendToKitchen($order)
@@ -34,7 +37,7 @@ class PrinterService
     public function sendToDesk($order)
     {
         if (!$this->deskPrinter) {
-            return "Warning: Kitchen printer is not configured.";
+            return "Warning: Desk printer is not configured.";
         }
 
         $print = new PrintJob();
@@ -42,7 +45,7 @@ class PrinterService
         $print->content = $order;
         $print->save();
 
-        return "Order successfully sent to kitchen printer.";
+        return "Order successfully sent to desk printer.";
     }
 
     public function printToKitchen($order)
@@ -178,6 +181,12 @@ class PrinterService
 
         return "Order successfully sent to desk printer.";
 
+    }
+
+    protected function normalizePrinterName($name)
+    {
+        $name = trim((string) $name);
+        return $name !== '' ? $name : null;
     }
 
 }
