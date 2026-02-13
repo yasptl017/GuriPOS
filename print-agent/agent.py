@@ -38,7 +38,7 @@ except ImportError:
 
 APP_NAME    = "Punjabi Paradise Print Agent"
 CONFIG_FILE = os.path.join(os.environ.get("APPDATA", "."), "PunjabiParadisePrintAgent", "config.json")
-POLL_INTERVAL = 3   # seconds between each poll
+POLL_INTERVAL = 1   # seconds between each poll
 LOG_MAX_LINES = 200
 
 DEFAULT_CONFIG = {
@@ -47,7 +47,7 @@ DEFAULT_CONFIG = {
     "receipt_printer":  "",
     "kitchen_printer":  "",
     "autostart":        False,
-    "poll_interval":    3,
+    "poll_interval":    1,
 }
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -261,8 +261,8 @@ class PrintAgentApp:
 
         row += 1
         ttk.Label(sf, text="Poll every (sec):").grid(row=row, column=0, sticky=tk.W, padx=8, pady=4)
-        self.sv_poll = tk.IntVar(value=self.cfg.get("poll_interval", 3))
-        ttk.Spinbox(sf, from_=1, to=30, textvariable=self.sv_poll, width=6).grid(row=row, column=1, padx=4, pady=4, sticky=tk.W)
+        self.sv_poll = tk.IntVar(value=self.cfg.get("poll_interval", 1))
+        ttk.Spinbox(sf, from_=1, to=10, textvariable=self.sv_poll, width=6).grid(row=row, column=1, padx=4, pady=4, sticky=tk.W)
 
         pf = ttk.LabelFrame(settings_frame, text="Printers")
         pf.pack(fill=tk.X, padx=14, pady=4)
