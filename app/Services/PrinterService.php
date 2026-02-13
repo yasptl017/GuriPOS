@@ -16,56 +16,93 @@ class PrinterService
         $setting = Setting::select('kitchen_printer', 'desk_printer')->first();
 
         $this->kitchenPrinter = $this->normalizePrinterName(optional($setting)->kitchen_printer);
-        $this->deskPrinter = $this->normalizePrinterName(optional($setting)->desk_printer);
+        $this->deskPrinter    = $this->normalizePrinterName(optional($setting)->desk_printer);
     }
 
+    /**
+     * Queue a kitchen print job (raw content already formatted).
+     */
     public function sendToKitchen($order)
     {
         if (!$this->kitchenPrinter) {
             return "Warning: Kitchen printer is not configured.";
         }
 
-
-        $print = new PrintJob();
-        $print->printer = $this->kitchenPrinter;
-        $print->content = $order;
-        $print->save();
+        PrintJob::create([
+            'order_id' => $order->id ?? null,
+            'printer'  => $this->kitchenPrinter,
+            'content'  => is_string($order) ? $order : $this->formatOrderDetails($order),
+            'status'   => PrintJob::STATUS_PENDING,
+        ]);
 
         return "Order successfully sent to kitchen printer.";
     }
 
+    /**
+     * Queue a desk/receipt print job (raw content already formatted).
+     */
     public function sendToDesk($order)
     {
         if (!$this->deskPrinter) {
             return "Warning: Desk printer is not configured.";
         }
 
-        $print = new PrintJob();
-        $print->printer = $this->deskPrinter;
-        $print->content = $order;
-        $print->save();
+        PrintJob::create([
+            'order_id' => $order->id ?? null,
+            'printer'  => $this->deskPrinter,
+            'content'  => is_string($order) ? $order : $this->formatOrderDetails($order),
+            'status'   => PrintJob::STATUS_PENDING,
+        ]);
 
         return "Order successfully sent to desk printer.";
     }
 
+    /**
+     * Format order then queue for kitchen printer.
+     */
     public function printToKitchen($order)
     {
         if (!$this->kitchenPrinter) {
             return "Warning: Kitchen printer is not configured.";
         }
 
-
-        $print = new PrintJob();
-        $print->printer = $this->kitchenPrinter;
-        $print->content = $this->formatOrderDetails($order);
-        $print->save();
+        PrintJob::create([
+            'order_id' => $order->id ?? null,
+            'printer'  => $this->kitchenPrinter,
+            'content'  => $this->formatOrderDetails($order),
+            'status'   => PrintJob::STATUS_PENDING,
+        ]);
 
         return "Order successfully sent to kitchen printer.";
     }
 
+    /**
+     * Format order then queue for desk printer.
+     */
+    public function printToDesk($order)
+    {
+        if (!$this->deskPrinter) {
+            return "Warning: Desk printer is not configured.";
+        }
+
+        PrintJob::create([
+            'order_id' => $order->id ?? null,
+            'printer'  => $this->deskPrinter,
+            'content'  => $this->formatOrderDetails($order),
+            'status'   => PrintJob::STATUS_PENDING,
+        ]);
+
+        return "Order successfully sent to desk printer.";
+    }
+
+    public function getFormattedReceipt($order): string
+    {
+        return $this->formatOrderDetails($order);
+    }
+
     protected function formatOrderDetails($order)
     {
-        $output = "";
+        $output   = "";
         $subtotal = 0;
         $output .= "         Punjabi Paradise\n";
         $output .= "     419 High Street, Penrith, 2750\n";
@@ -85,20 +122,17 @@ class PrinterService
         $output .= str_repeat("-", 42) . "\n";
         $output .= sprintf("%-4s %-30s %6s\n", "Qty", "Item", "Amount");
         $output .= str_repeat("-", 42) . "\n";
+
         foreach ($order->items as $item) {
-            $rate = $item->price / $item->quantity;
             $subtotal += $item->price;
 
-            // Check if size is empty or "Regular"
             if (empty($item->size) || strtolower($item->size) === 'regular') {
                 $name = $item->name;
             } else {
                 $name = $item->name . '-' . $item->size;
             }
 
-            // Handle long item names
-            $nameLength = strlen($name);
-            if ($nameLength > 30) {
+            if (strlen($name) > 30) {
                 $firstLine = substr($name, 0, 30);
                 $remaining = substr($name, 30);
                 $output .= sprintf("%-4s %-30s %6.2f\n", $item->quantity, $firstLine, $item->price);
@@ -107,11 +141,12 @@ class PrinterService
                 $output .= sprintf("%-4s %-30s %6.2f\n", $item->quantity, $name, $item->price);
             }
 
-            // Add a blank line between each item
             $output .= "\n";
         }
+
         $output .= str_repeat("-", 42) . "\n";
         $output .= sprintf("%-30s %12s\n", "Subtotal:", "$" . number_format($subtotal, 2));
+
         $couponLabel = !empty($order->coupon_name)
             ? "Discount (" . $order->coupon_name . "):"
             : "Discount:";
@@ -121,25 +156,6 @@ class PrinterService
         $output .= sprintf("%-30s %12s\n", "Total:", "$" . number_format($order->total, 2));
         $output .= str_repeat("-", 42) . "\n";
 
-        // Add offer information based on subtotal and order type
-       /*
-        if (($order->type === "Pickup" || $order->type === "Delivery") && $subtotal >= 50) {
-            $output .= "Offer Applied:\n";
-            if ($subtotal >= 150) {
-                $output .= "Free (Butter Chicken / Dal Makhni) and Mix Bread Basket\n";
-            } elseif ($subtotal >= 100) {
-                $output .= "Free Butter Chicken / Dal Makhni\n";
-            } elseif ($subtotal >= 80) {
-                $output .= "Free Mix Bread Basket\n";
-            } elseif ($subtotal >= 60) {
-                $output .= "Free Rice\n";
-            } elseif ($subtotal >= 50) {
-                $output .= "Free Plain Naan\n";
-            }
-            $output .= str_repeat("-", 42) . "\n";
-        }
-        */
-        // Add instructions if they exist
         if (!empty($order->inst)) {
             $output .= "Special Instructions:\n";
             $output .= wordwrap($order->inst, 42) . "\n";
@@ -162,31 +178,9 @@ class PrinterService
         return $output;
     }
 
-
-    public function getFormattedReceipt($order): string
-    {
-        return $this->formatOrderDetails($order);
-    }
-
-    public function printToDesk($order)
-    {
-        if (!$this->deskPrinter) {
-            return "Warning: Desk printer is not configured.";
-        }
-
-        $print = new PrintJob();
-        $print->printer = $this->deskPrinter;
-        $print->content = $this->formatOrderDetails($order);
-        $print->save();
-
-        return "Order successfully sent to desk printer.";
-
-    }
-
     protected function normalizePrinterName($name)
     {
         $name = trim((string) $name);
         return $name !== '' ? $name : null;
     }
-
 }

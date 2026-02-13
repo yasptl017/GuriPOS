@@ -6,27 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::table('reservations', function (Blueprint $table) {
-            //
-        });
+        // Intentionally empty - reserved for future reservations table changes
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        Schema::table('reservations', function (Blueprint $table) {
-            //
-        });
+        // Nothing to reverse
     }
 };

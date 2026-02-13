@@ -6,27 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-//        Schema::table('orders', function (Blueprint $table) {
-//            $table->string('order_type')->after('order_status')->default('Pickup');;
-//        });
+        if (!Schema::hasColumn('orders', 'order_type')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->string('order_type')->after('order_status')->default('Pickup');
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-//        Schema::table('orders', function (Blueprint $table) {
-//            $table->dropColumn('order_type');
-//        });
+        if (Schema::hasColumn('orders', 'order_type')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->dropColumn('order_type');
+            });
+        }
     }
 };

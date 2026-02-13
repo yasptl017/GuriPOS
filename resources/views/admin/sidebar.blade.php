@@ -57,7 +57,7 @@
 
           </li>
 
-          <li class="nav-item dropdown {{ Route::is('admin.product.*') || Route::is('admin.product-variant') || Route::is('admin.product-gallery') || Route::is('admin.product-category.*') || Route::is('admin.category-order') || Route::is('admin.reservation') || Route::is('admin.working-hours') || Route::is('admin.order-control') || Route::is('admin.printer-setting') ? 'active' : '' }}">
+          <li class="nav-item dropdown {{ Route::is('admin.product.*') || Route::is('admin.product-variant') || Route::is('admin.product-gallery') || Route::is('admin.product-category.*') || Route::is('admin.category-order') || Route::is('admin.reservation') || Route::is('admin.working-hours') || Route::is('admin.order-control') || Route::is('admin.printer-setting') || Route::is('admin.pos-tables') ? 'active' : '' }}">
             <a href="#" class="nav-link has-dropdown"><i class="fas fa-th-large"></i><span>{{__('admin.Manage Restaurant')}}</span></a>
             <ul class="dropdown-menu">
 
@@ -75,6 +75,7 @@
 
                 <li class="{{ Route::is('admin.order-control') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.order-control') }}">Order Control</a></li>
                 <li class="{{ Route::is('admin.printer-setting') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.printer-setting') }}">Printer Settings</a></li>
+                <li class="{{ Route::is('admin.pos-tables') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.pos-tables') }}"><i class="fas fa-chair mr-1"></i>POS Tables</a></li>
 
             </ul>
           </li>

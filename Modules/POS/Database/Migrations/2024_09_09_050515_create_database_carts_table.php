@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
+        if (Schema::hasTable('database_carts')) return;
         Schema::create('database_carts', function (Blueprint $table) {
             $table->id();
             $table->string('instance')->unique();

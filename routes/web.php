@@ -50,6 +50,7 @@ use App\Http\Controllers\WEB\Admin\WorkingHoursController;
 use App\Http\Controllers\WEB\Admin\OrderControlController;
 use App\Http\Controllers\WEB\Admin\ReportController;
 use App\Http\Controllers\WEB\Admin\CategoryOrderController;
+use App\Http\Controllers\WEB\Admin\POSTableController;
 use App\Http\Controllers\WEB\User\AddressCotroller;
 use App\Http\Controllers\WEB\User\PaymentController;
 use App\Http\Controllers\WEB\User\PaypalController;
@@ -375,6 +376,13 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::put('update-order-control', [OrderControlController::class, 'update'])->name('update-order-control');
         Route::get('printer-setting', [PrinterSettingController::class, 'index'])->name('printer-setting');
         Route::put('update-printer-setting', [PrinterSettingController::class, 'update'])->name('update-printer-setting');
+
+        // POS Tables management
+        Route::get('pos-tables', [POSTableController::class, 'index'])->name('pos-tables');
+        Route::post('pos-tables', [POSTableController::class, 'store'])->name('pos-tables.store');
+        Route::put('pos-tables/{id}', [POSTableController::class, 'update'])->name('pos-tables.update');
+        Route::put('pos-tables/{id}/clear', [POSTableController::class, 'clearCart'])->name('pos-tables.clear');
+        Route::delete('pos-tables/{id}', [POSTableController::class, 'destroy'])->name('pos-tables.destroy');
 
         Route::resource('coupon', CouponController::class);
         Route::put('coupon-status/{id}', [CouponController::class, 'changeStatus'])->name('coupon-status');
