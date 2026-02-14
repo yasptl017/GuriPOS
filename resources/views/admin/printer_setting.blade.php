@@ -64,6 +64,99 @@
                     </div>
                 </div>
 
+                {{-- Print Mode --}}
+                <div class="col-12 mt-2">
+                    <div class="card printer-card">
+                        <div class="card-header printer-card-header d-flex align-items-center justify-content-between">
+                            <h4 class="mb-0">Print Mode</h4>
+                            <span class="badge badge-pill {{ optional($setting)->print_mode === 'push' ? 'badge-success' : 'badge-secondary' }} px-3 py-2" style="font-size:13px;">
+                                {{ optional($setting)->print_mode === 'push' ? 'Push Mode Active' : 'Poll Mode Active' }}
+                            </span>
+                        </div>
+                        <div class="card-body printer-card-body">
+                            <div class="row">
+                                <div class="col-12 col-md-7">
+                                    <p class="text-muted small mb-3">
+                                        Choose how the Print Agent receives print jobs from the server.
+                                    </p>
+                                    <form action="{{ route('admin.update-printer-setting') }}" method="POST" id="printModeForm">
+                                        @csrf
+                                        @method('PUT')
+                                        {{-- Hidden inputs carry the existing printer names through --}}
+                                        <input type="hidden" name="kitchen_printer" value="{{ optional($setting)->kitchen_printer }}">
+                                        <input type="hidden" name="desk_printer"    value="{{ optional($setting)->desk_printer }}">
+
+                                        <div class="print-mode-options mb-3">
+                                            <div class="print-mode-option {{ optional($setting)->print_mode !== 'push' ? 'active' : '' }}" id="optPoll">
+                                                <label class="d-flex align-items-start mb-0" style="cursor:pointer;">
+                                                    <input type="radio" name="print_mode" value="poll"
+                                                        {{ optional($setting)->print_mode !== 'push' ? 'checked' : '' }}
+                                                        class="mt-1 mr-2" onchange="onModeChange(this)">
+                                                    <div>
+                                                        <strong>Poll Mode</strong> <span class="text-muted small">(Default)</span><br>
+                                                        <span class="small text-muted">
+                                                            Agent asks server for pending jobs every N seconds.
+                                                            Works reliably from anywhere. Slight delay (≤ poll interval).
+                                                        </span>
+                                                    </div>
+                                                </label>
+                                            </div>
+
+                                            <div class="print-mode-option {{ optional($setting)->print_mode === 'push' ? 'active' : '' }} mt-2" id="optPush">
+                                                <label class="d-flex align-items-start mb-0" style="cursor:pointer;">
+                                                    <input type="radio" name="print_mode" value="push"
+                                                        {{ optional($setting)->print_mode === 'push' ? 'checked' : '' }}
+                                                        class="mt-1 mr-2" onchange="onModeChange(this)">
+                                                    <div>
+                                                        <strong>Push Mode</strong> <span class="badge badge-warning badge-pill small">Instant</span><br>
+                                                        <span class="small text-muted">
+                                                            Server pushes directly to the agent the moment you click Print.
+                                                            Zero delay. Requires agent running on the same PC as the browser,
+                                                            or on the local network with the port accessible.
+                                                        </span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div id="pushPortRow" class="form-group print-mode-port-row mb-3" style="{{ optional($setting)->print_mode === 'push' ? '' : 'display:none;' }}">
+                                            <label class="font-weight-600 mb-1">Agent Listen Port</label>
+                                            <div class="input-group" style="max-width:220px;">
+                                                <input type="number" name="agent_port" class="form-control"
+                                                    value="{{ optional($setting)->agent_port ?? 5757 }}"
+                                                    min="1024" max="65535" placeholder="5757">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">TCP</span>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">Default: 5757. Must match the port set in the Print Agent app.</small>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary printer-save-btn">Save Print Mode</button>
+                                    </form>
+                                </div>
+
+                                <div class="col-12 col-md-5 mt-3 mt-md-0">
+                                    <div class="alert alert-light border small" style="line-height:1.7;">
+                                        <strong>Which mode to choose?</strong><br>
+                                        <table class="table table-sm table-borderless mb-0 mt-2" style="font-size:12px;">
+                                            <thead><tr><th></th><th class="text-center">Poll</th><th class="text-center">Push</th></tr></thead>
+                                            <tbody>
+                                                <tr><td>Print Speed</td><td class="text-center">≤1 sec</td><td class="text-center text-success font-weight-bold">Instant</td></tr>
+                                                <tr><td>Setup</td><td class="text-center text-success">Easy</td><td class="text-center">Port needed</td></tr>
+                                                <tr><td>Works remotely</td><td class="text-center text-success">Yes</td><td class="text-center text-warning">LAN only</td></tr>
+                                                <tr><td>Fallback if agent down</td><td class="text-center text-success">Yes</td><td class="text-center">Auto-fallback</td></tr>
+                                            </tbody>
+                                        </table>
+                                        <hr class="my-2">
+                                        <span class="text-muted">In Push mode the job is still saved to DB. If the agent is unreachable, it falls back to Poll automatically.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Print Agent Setup --}}
                 <div class="col-12 col-lg-6 d-flex">
                     <div class="card printer-card w-100">
@@ -75,8 +168,9 @@
                             <div class="alert alert-info printer-info-alert" style="color:black">
                                 <strong>What is the Print Agent?</strong><br>
                                 A small Windows app that runs on the restaurant PC.
-                                It polls this server for pending print jobs and sends them
-                                directly to your local printers - even when hosted on Hostinger.
+                                In <strong>Poll mode</strong> it checks every second for pending jobs.
+                                In <strong>Push mode</strong> the server notifies it instantly when you click Print —
+                                zero delay. Select your preferred mode in the <em>Print Mode</em> card above.
                             </div>
 
                             <h6 class="printer-step-title">Step 1 - Copy your API Key</h6>
@@ -107,7 +201,7 @@
                             </ol>
 
                             <h6 class="printer-step-title">Step 3 - Test</h6>
-                            <p class="small printer-step-note">Place a test order and the agent should print within 3 seconds.</p>
+                            <p class="small printer-step-note">Place a test order. In Push mode it prints instantly; in Poll mode within 1 second.</p>
 
                             <hr>
                             <h6 class="printer-step-title">How to find your printer name on Windows</h6>
@@ -319,6 +413,25 @@
         background: #fcfcfd;
     }
 
+    /* Print Mode */
+    .printer-settings-page .print-mode-options .print-mode-option {
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 12px 14px;
+        transition: border-color .2s, background .2s;
+        background: #fafafa;
+    }
+
+    .printer-settings-page .print-mode-options .print-mode-option.active,
+    .printer-settings-page .print-mode-options .print-mode-option:has(input:checked) {
+        border-color: #f59e0b;
+        background: #fffbf5;
+    }
+
+    .printer-settings-page .print-mode-port-row label {
+        font-weight: 600;
+    }
+
     @media (max-width: 991.98px) {
         .printer-settings-page .printer-page-header {
             padding-top: 12px;
@@ -335,6 +448,21 @@ function copyKey() {
     field.select();
     document.execCommand('copy');
     alert('API Key copied!');
+}
+
+function onModeChange(radio) {
+    var portRow = document.getElementById('pushPortRow');
+    var optPoll = document.getElementById('optPoll');
+    var optPush = document.getElementById('optPush');
+    if (radio.value === 'push') {
+        portRow.style.display = '';
+        optPush.classList.add('active');
+        optPoll.classList.remove('active');
+    } else {
+        portRow.style.display = 'none';
+        optPoll.classList.add('active');
+        optPush.classList.remove('active');
+    }
 }
 
 function loadJobs() {

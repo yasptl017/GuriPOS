@@ -24,7 +24,9 @@ class PrinterSettingController extends Controller
     {
         $request->validate([
             'kitchen_printer' => 'nullable|string|max:255',
-            'desk_printer' => 'nullable|string|max:255',
+            'desk_printer'    => 'nullable|string|max:255',
+            'print_mode'      => 'nullable|in:poll,push',
+            'agent_port'      => 'nullable|integer|min:1024|max:65535',
         ]);
 
         $setting = Setting::first();
@@ -38,7 +40,9 @@ class PrinterSettingController extends Controller
         }
 
         $setting->kitchen_printer = $request->kitchen_printer;
-        $setting->desk_printer = $request->desk_printer;
+        $setting->desk_printer    = $request->desk_printer;
+        $setting->print_mode      = $request->input('print_mode', 'poll');
+        $setting->agent_port      = (int) $request->input('agent_port', 5757);
         $setting->save();
 
         $notification = trans('admin_validation.Update Successfully');

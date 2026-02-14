@@ -10,13 +10,17 @@ class PrinterService
 {
     protected $kitchenPrinter;
     protected $deskPrinter;
+    protected $printMode;   // 'poll' | 'push'
+    protected $agentPort;   // local port for push mode (default 5757)
 
     public function __construct()
     {
-        $setting = Setting::select('kitchen_printer', 'desk_printer')->first();
+        $setting = Setting::select('kitchen_printer', 'desk_printer', 'print_mode', 'agent_port')->first();
 
         $this->kitchenPrinter = $this->normalizePrinterName(optional($setting)->kitchen_printer);
         $this->deskPrinter    = $this->normalizePrinterName(optional($setting)->desk_printer);
+        $this->printMode      = optional($setting)->print_mode ?? 'poll';
+        $this->agentPort      = (int)(optional($setting)->agent_port ?? 5757);
     }
 
     /**
@@ -28,12 +32,14 @@ class PrinterService
             return "Warning: Kitchen printer is not configured.";
         }
 
-        PrintJob::create([
+        $job = PrintJob::create([
             'order_id' => $order->id ?? null,
             'printer'  => $this->kitchenPrinter,
             'content'  => is_string($order) ? $order : $this->formatOrderDetails($order),
             'status'   => PrintJob::STATUS_PENDING,
         ]);
+
+        $this->pushToAgent($job);
 
         return "Order successfully sent to kitchen printer.";
     }
@@ -47,12 +53,14 @@ class PrinterService
             return "Warning: Desk printer is not configured.";
         }
 
-        PrintJob::create([
+        $job = PrintJob::create([
             'order_id' => $order->id ?? null,
             'printer'  => $this->deskPrinter,
             'content'  => is_string($order) ? $order : $this->formatOrderDetails($order),
             'status'   => PrintJob::STATUS_PENDING,
         ]);
+
+        $this->pushToAgent($job);
 
         return "Order successfully sent to desk printer.";
     }
@@ -66,12 +74,14 @@ class PrinterService
             return "Warning: Kitchen printer is not configured.";
         }
 
-        PrintJob::create([
+        $job = PrintJob::create([
             'order_id' => $order->id ?? null,
             'printer'  => $this->kitchenPrinter,
             'content'  => $this->formatOrderDetails($order),
             'status'   => PrintJob::STATUS_PENDING,
         ]);
+
+        $this->pushToAgent($job);
 
         return "Order successfully sent to kitchen printer.";
     }
@@ -85,12 +95,14 @@ class PrinterService
             return "Warning: Desk printer is not configured.";
         }
 
-        PrintJob::create([
+        $job = PrintJob::create([
             'order_id' => $order->id ?? null,
             'printer'  => $this->deskPrinter,
             'content'  => $this->formatOrderDetails($order),
             'status'   => PrintJob::STATUS_PENDING,
         ]);
+
+        $this->pushToAgent($job);
 
         return "Order successfully sent to desk printer.";
     }
@@ -98,6 +110,52 @@ class PrinterService
     public function getFormattedReceipt($order): string
     {
         return $this->formatOrderDetails($order);
+    }
+
+    /**
+     * If print_mode is 'push', immediately POST the job to the local print agent
+     * running on localhost:{agent_port}. Falls back silently if agent is unreachable.
+     */
+    protected function pushToAgent(PrintJob $job): void
+    {
+        if ($this->printMode !== 'push') {
+            return;
+        }
+
+        $url     = "http://127.0.0.1:{$this->agentPort}/print";
+        $payload = json_encode([
+            'id'       => $job->id,
+            'order_id' => $job->order_id,
+            'printer'  => $job->printer,
+            'content'  => $job->content,
+            'key'      => env('PRINT_AGENT_KEY'),
+        ]);
+
+        try {
+            $context = stream_context_create([
+                'http' => [
+                    'method'  => 'POST',
+                    'header'  => "Content-Type: application/json\r\nAccept: application/json\r\n",
+                    'content' => $payload,
+                    'timeout' => 3,
+                    'ignore_errors' => true,
+                ],
+            ]);
+
+            $response = @file_get_contents($url, false, $context);
+
+            if ($response !== false) {
+                $data = json_decode($response, true);
+                if (!empty($data['success'])) {
+                    // Agent printed successfully — mark job as printed
+                    $job->status     = PrintJob::STATUS_PRINTED;
+                    $job->printed_at = now();
+                    $job->save();
+                }
+            }
+        } catch (\Throwable $e) {
+            // Agent unreachable — job stays pending, poll mode will pick it up
+        }
     }
 
     protected function formatOrderDetails($order)
