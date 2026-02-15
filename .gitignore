@@ -21,7 +21,12 @@ yarn-error.log
 yarn.lock
 package-lock.json
 .php_cs.cache
-storage/
-storage/*.key
 /docker-compose-collection/
 /resources/themes/velocity/*
+/storage/*.key
+/storage/pail
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
